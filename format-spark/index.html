@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nazaré format spark</title>
+  <style>
+    :root {
+      --nazare-plum: #2a034c;
+      --nazare-purple: #451284;
+      --nazare-magenta: #b502b1;
+      --nazare-teal: #00ca9f;
+      --nazare-blue: #41bce5;
+      --nazare-paper: #fffdfb;
+      --nazare-ink: #26223b;
+      --nazare-muted: #66667a;
+      --nazare-line: rgba(42, 3, 76, 0.12);
+      --nazare-soft: rgba(69, 18, 132, 0.06);
+      --note: #ffef9d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Montserrat", "Aptos", "Segoe UI", sans-serif;
+      color: var(--nazare-ink);
+      background:
+        radial-gradient(circle at top left, rgba(0, 202, 159, 0.14), transparent 24rem),
+        radial-gradient(circle at top right, rgba(181, 2, 177, 0.12), transparent 22rem),
+        linear-gradient(180deg, #faf9ff 0%, #edf1fb 100%);
+    }
+
+    .shell {
+      width: min(100% - 32px, 980px);
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .hero {
+      padding: 24px;
+      border: 1px solid var(--nazare-line);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 20px 40px rgba(42, 3, 76, 0.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .kicker {
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--nazare-magenta);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 54px);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      color: var(--nazare-plum);
+    }
+
+    .lede {
+      max-width: 720px;
+      margin: 14px 0 0;
+      font-size: 18px;
+      line-height: 1.45;
+      color: var(--nazare-muted);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(42, 3, 76, 0.1);
+    }
+
+    .btn-primary {
+      background: var(--nazare-plum);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--nazare-plum);
+      border: 1px solid var(--nazare-line);
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .card {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid var(--nazare-line);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 26px rgba(42, 3, 76, 0.06);
+    }
+
+    .card--idea {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9)),
+        linear-gradient(135deg, rgba(255, 239, 157, 0.45), rgba(255, 255, 255, 0));
+    }
+
+    .card--twist {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9)),
+        linear-gradient(135deg, rgba(0, 202, 159, 0.18), rgba(255, 255, 255, 0));
+    }
+
+    .label {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--nazare-purple);
+      background: var(--nazare-soft);
+    }
+
+    .title {
+      margin: 0;
+      font-size: 27px;
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      color: var(--nazare-plum);
+    }
+
+    .category {
+      margin: 10px 0 0;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--nazare-magenta);
+    }
+
+    .body {
+      margin: 10px 0 0;
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--nazare-muted);
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100% - 20px, 980px);
+        padding-top: 18px;
+      }
+
+      .hero {
+        padding: 18px;
+        border-radius: 18px;
+      }
+
+      .title {
+        font-size: 24px;
+      }
+
+      .body {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="kicker">Nazaré hackathon</p>
+      <h1>Format spark</h1>
+      <p class="lede">Use this as a quick idea generator when the group starts falling back on safe formats. Press once for a single route, three at a time for a wider spread, or add a twist to push the idea further.</p>
+
+      <div class="controls">
+        <button class="btn-primary" id="oneIdeaBtn" type="button">Give me one idea</button>
+        <button class="btn-secondary" id="threeIdeasBtn" type="button">Give me three ideas</button>
+        <button class="btn-secondary" id="twistBtn" type="button">Add a twist</button>
+      </div>
+
+      <div class="results" id="results"></div>
+    </section>
+  </main>
+
+  <script>
+    const ideas = [
+      { title: "Scenario prompt cards", category: "Cards and prompts", prompt: "Give people a situation, then force them to decide what they would do next." },
+      { title: "Objection and challenge cards", category: "Cards and prompts", prompt: "Surface common pushback and make people practise how they would respond in the moment." },
+      { title: "Stakeholder role cards", category: "Cards and prompts", prompt: "Give each person a perspective to play so the discussion becomes more realistic." },
+      { title: "Evidence tiles cards", category: "Cards and prompts", prompt: "Ask people to sort, build, or connect key pieces of evidence into a usable story." },
+      { title: "Next best action cards", category: "Cards and prompts", prompt: "Turn a complex challenge into a sequence of choices, trade-offs, and consequences." },
+      { title: "Myth-busting card sort", category: "Cards and prompts", prompt: "Challenge assumptions by making people sort real statements into true, false, or partly true." },
+      { title: "Conversation opener deck", category: "Cards and prompts", prompt: "Use short prompts to help people start a difficult conversation more naturally." },
+      { title: "Decision ladder cards", category: "Cards and prompts", prompt: "Break a task into steps and let people move through the decision points one by one." },
+
+      { title: "Board game", category: "Physical and printable", prompt: "Turn progress, choices, and consequences into something people move through together." },
+      { title: "Spinner wheel", category: "Physical and printable", prompt: "Introduce randomness, challenge, or pressure with a simple physical mechanic." },
+      { title: "Dice set", category: "Physical and printable", prompt: "Use dice to add variability, urgency, or unexpected combinations." },
+      { title: "Puzzle", category: "Physical and printable", prompt: "Make people piece together the right order, evidence, or route rather than being told." },
+      { title: "3D printed model", category: "Physical and printable", prompt: "Use a tangible object when shape, structure, or mechanism really matters." },
+      { title: "Magnetic kit", category: "Physical and printable", prompt: "Let people build, move, and rearrange parts quickly on a wall or table." },
+      { title: "Build block kit", category: "Physical and printable", prompt: "Use simple blocks or pieces to model a system, pathway, or challenge." },
+      { title: "Canvas sheet", category: "Physical and printable", prompt: "Give people one shared surface to sketch, sort, and decide together." },
+      { title: "Template kit", category: "Physical and printable", prompt: "Offer a structured pack that helps people create something quickly in the room." },
+      { title: "Facilitator pack", category: "Physical and printable", prompt: "Design a guided set of prompts, props, and cues rather than a slide deck." },
+      { title: "Role play script pack", category: "Physical and printable", prompt: "Give just enough script to get people into a realistic exchange fast." },
+      { title: "Journey mat", category: "Physical and printable", prompt: "Map a sequence of steps on a tabletop or wall so people can move through it together." },
+      { title: "Paper prototype desk kit", category: "Physical and printable", prompt: "Put every key asset on paper so people can test the flow without building the full thing." },
+
+      { title: "Digital sandbox", category: "Digital and interactive", prompt: "Create a safe space where people can test ideas, choices, or responses without real-world risk." },
+      { title: "Scorecard tracker", category: "Digital and interactive", prompt: "Make progress visible and give people feedback on what strong performance looks like." },
+      { title: "Digital scenario generator", category: "Digital and interactive", prompt: "Use randomised inputs to create lots of practice situations quickly." },
+      { title: "Interactive decision tree", category: "Digital and interactive", prompt: "Let people follow routes, make choices, and see where each path leads." },
+      { title: "Chatbot role-play simulator", category: "Digital and interactive", prompt: "Create a simple back-and-forth so people can rehearse how they would speak or respond." },
+      { title: "Interactive video branching module", category: "Digital and interactive", prompt: "Use choices inside video to make consequences visible and memorable." },
+      { title: "Live polling and leaderboard app", category: "Digital and interactive", prompt: "Bring energy into the room with live votes, rankings, and discussion prompts." },
+      { title: "Digital whiteboard workspace", category: "Digital and interactive", prompt: "Create a shared space for people to build, sort, and react together." },
+      { title: "Audio prompt soundboard", category: "Digital and interactive", prompt: "Use short sound or voice prompts to set up situations, pressure, or reflection." },
+      { title: "Random challenge generator", category: "Digital and interactive", prompt: "Press a button and throw people a new challenge, barrier, or customer cue." },
+      { title: "Quick diagnostic tool", category: "Digital and interactive", prompt: "Help people assess where they are strong, weak, or inconsistent before moving on." },
+      { title: "Local browser simulator", category: "Digital and interactive", prompt: "Build one self-contained HTML experience people can click through on a laptop." },
+      { title: "Prompt remix tool", category: "Digital and interactive", prompt: "Mix audience, pressure, evidence, and context into unexpected combinations." },
+
+      { title: "VR scenario simulation", category: "Immersive", prompt: "Use immersion when context, pressure, or presence is part of the skill." },
+      { title: "AR overlay walkthrough", category: "Immersive", prompt: "Layer information onto a real setting or object to make the experience more applied." },
+      { title: "Escape room", category: "Immersive", prompt: "Make the challenge collaborative, urgent, and puzzle-led." },
+      { title: "Audio drama walkthrough", category: "Immersive", prompt: "Use sound and narrative to pull people into a scenario without complex tech." },
+      { title: "Mission briefing sequence", category: "Immersive", prompt: "Frame the work as a live mission with stakes, roles, and updates." },
+      { title: "Control-room simulation", category: "Immersive", prompt: "Turn the room into a live decision environment rather than a training session." },
+
+      { title: "Fishbowl conversation", category: "Facilitated and social", prompt: "Let a few people model the exchange while everyone else watches for patterns and choices." },
+      { title: "Peer challenge clinic", category: "Facilitated and social", prompt: "Bring real problems to the table and make the group help solve them under time pressure." },
+      { title: "Game show round", category: "Facilitated and social", prompt: "Use rounds, buzzers, rankings, or reveals to make retrieval more alive." },
+      { title: "Live debate format", category: "Facilitated and social", prompt: "Force people to argue a case, defend it, and adapt when challenged." },
+      { title: "Marketplace walkaround", category: "Facilitated and social", prompt: "Set up stations and make people circulate, compare, and react." },
+      { title: "Coaching huddle", category: "Facilitated and social", prompt: "Keep it small, practical, and reflective with people helping each other in the moment." },
+
+      { title: "Before-and-after reveal", category: "Story and performance", prompt: "Show how weak and strong versions of the same moment feel different in practice." },
+      { title: "Casefile investigation", category: "Story and performance", prompt: "Give people clues, evidence, and partial information to work through together." },
+      { title: "Live newsroom", category: "Story and performance", prompt: "Make the group respond to updates, shifts, and new information in real time." },
+      { title: "Museum trail", category: "Story and performance", prompt: "Turn the experience into a sequence of stops with artefacts, prompts, and choices." },
+      { title: "Studio critique", category: "Story and performance", prompt: "Ask people to make something rough, put it up, and get live feedback fast." }
+    ];
+
+    const twists = [
+      "Make it social rather than solo.",
+      "Make it physical rather than screen-based.",
+      "Make it playable rather than presentational.",
+      "Make it feel like a live event.",
+      "Make it work in under 10 minutes.",
+      "Make it work with almost no props.",
+      "Make it useful before the key moment, not just during it.",
+      "Make it help people follow through after the moment.",
+      "Make Copilot create one part of it fast.",
+      "Make the audience build something, not just consume something.",
+      "Make it surprising in the first 30 seconds.",
+      "Make the pressure visible.",
+      "Make it work as a browser tool on one laptop.",
+      "Make it feel premium without becoming complicated.",
+      "Make people choose between imperfect options."
+    ];
+
+    const resultsEl = document.getElementById("results");
+    const oneIdeaBtn = document.getElementById("oneIdeaBtn");
+    const threeIdeasBtn = document.getElementById("threeIdeasBtn");
+    const twistBtn = document.getElementById("twistBtn");
+
+    let currentResults = [];
+
+    function sample(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function sampleMany(array, count) {
+      const pool = [...array];
+      const picked = [];
+      while (pool.length && picked.length < count) {
+        const index = Math.floor(Math.random() * pool.length);
+        picked.push(pool.splice(index, 1)[0]);
+      }
+      return picked;
+    }
+
+    function renderCards(cards) {
+      currentResults = cards;
+      resultsEl.innerHTML = cards.map((card) => {
+        if (card.type === "twist") {
+          return `
+            <article class="card card--twist">
+              <span class="label">Twist</span>
+              <h2 class="title">${card.title}</h2>
+              <p class="body">${card.prompt}</p>
+            </article>
+          `;
+        }
+
+        return `
+          <article class="card card--idea">
+            <span class="label">Format idea</span>
+            <h2 class="title">${card.title}</h2>
+            <p class="category">${card.category}</p>
+            <p class="body">${card.prompt}</p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function setOneIdea() {
+      renderCards([sample(ideas)]);
+    }
+
+    function setThreeIdeas() {
+      renderCards(sampleMany(ideas, 3));
+    }
+
+    function addTwist() {
+      const twistCard = {
+        type: "twist",
+        title: "Try this next",
+        prompt: sample(twists)
+      };
+
+      if (!currentResults.length) {
+        renderCards([sample(ideas), twistCard]);
+        return;
+      }
+
+      renderCards([...currentResults.filter((item) => item.type !== "twist"), twistCard]);
+    }
+
+    oneIdeaBtn.addEventListener("click", setOneIdea);
+    threeIdeasBtn.addEventListener("click", setThreeIdeas);
+    twistBtn.addEventListener("click", addTwist);
+
+    setOneIdea();
+  </script>
+</body>
+</html>

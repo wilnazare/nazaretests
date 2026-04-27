@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nazaré tests</title>
+  <style>
+    :root {
+      --nazare-plum: #2a034c;
+      --nazare-purple: #451284;
+      --nazare-magenta: #b502b1;
+      --nazare-teal: #00ca9f;
+      --nazare-blue: #41bce5;
+      --nazare-paper: #fffdfb;
+      --nazare-ink: #26223b;
+      --nazare-muted: #66667a;
+      --nazare-line: rgba(42, 3, 76, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Montserrat", "Aptos", "Segoe UI", sans-serif;
+      color: var(--nazare-ink);
+      background:
+        radial-gradient(circle at top left, rgba(0, 202, 159, 0.16), transparent 24rem),
+        radial-gradient(circle at top right, rgba(181, 2, 177, 0.14), transparent 22rem),
+        linear-gradient(180deg, #faf9ff 0%, #edf1fb 100%);
+    }
+
+    .shell {
+      width: min(100% - 32px, 1100px);
+      margin: 0 auto;
+      padding: 30px 0 48px;
+    }
+
+    .hero {
+      padding: 28px;
+      border: 1px solid var(--nazare-line);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 20px 40px rgba(42, 3, 76, 0.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .kicker {
+      margin: 0 0 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--nazare-magenta);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(38px, 6vw, 68px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      color: var(--nazare-plum);
+    }
+
+    .lede {
+      max-width: 760px;
+      margin: 16px 0 0;
+      font-size: 19px;
+      line-height: 1.45;
+      color: var(--nazare-muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .card {
+      display: block;
+      padding: 20px;
+      border-radius: 22px;
+      border: 1px solid var(--nazare-line);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 12px 26px rgba(42, 3, 76, 0.06);
+      color: inherit;
+      text-decoration: none;
+      transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 30px rgba(42, 3, 76, 0.1);
+      border-color: rgba(69, 18, 132, 0.24);
+    }
+
+    .label {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(69, 18, 132, 0.08);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--nazare-purple);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--nazare-plum);
+    }
+
+    p {
+      margin: 10px 0 0;
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--nazare-muted);
+    }
+
+    .soon {
+      border-style: dashed;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .footer {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--nazare-muted);
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100% - 20px, 1100px);
+        padding-top: 18px;
+      }
+
+      .hero {
+        padding: 20px;
+        border-radius: 20px;
+      }
+
+      .lede {
+        font-size: 17px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="kicker">Nazaré tests</p>
+      <h1>Prototypes and experiments</h1>
+      <p class="lede">A small collection of public Nazaré prototypes, workshop tools, and idea experiments.</p>
+
+      <div class="grid">
+        <a class="card" href="./format-spark/">
+          <span class="label">Workshop tool</span>
+          <h2>Format spark</h2>
+          <p>Random idea generator for Stage 5 concepting. Use it to push groups beyond the safest format and open up more creative routes.</p>
+        </a>
+
+        <div class="card soon">
+          <span class="label">Coming soon</span>
+          <h2>More tests</h2>
+          <p>This landing page is set up so more experiments can be dropped in as their own folders later.</p>
+        </div>
+      </div>
+
+      <p class="footer">Add each new prototype as its own folder with an <code>index.html</code>, then link to it from this page.</p>
+    </section>
+  </main>
+</body>
+</html>
