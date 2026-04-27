@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curated Skills Sunburst</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f8f7f4;
+      font-family: Aptos, Calibri, Arial, sans-serif;
+      color: #1f2937;
+    }
+    .wrap {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(720px, 1fr) 360px;
+      gap: 20px;
+      align-items: start;
+    }
+    .viz-card, .detail-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+    .viz-card {
+      overflow: hidden;
+      position: relative;
+    }
+    .viz-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      padding: 26px 30px 8px;
+    }
+    .viz-eyebrow {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+    }
+    .viz-title {
+      font-size: clamp(28px, 3vw, 42px);
+      line-height: 0.95;
+      margin: 0;
+      letter-spacing: -0.04em;
+    }
+    .viz-subtitle {
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.45;
+      margin: 10px 0 0;
+      max-width: 620px;
+    }
+    .viz-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      min-width: 210px;
+    }
+    .chip {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 10px;
+      white-space: nowrap;
+    }
+    .viz-frame {
+      display: flex;
+      justify-content: center;
+      padding: 0 18px 22px;
+    }
+    .chart-tooltip {
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.22);
+      color: white;
+      font-size: 13px;
+      left: 0;
+      line-height: 1.35;
+      max-width: 270px;
+      opacity: 0;
+      padding: 10px 12px;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      transform: translate(-999px, -999px);
+      transition: opacity 120ms ease;
+      z-index: 5;
+    }
+    .chart-tooltip.is-visible {
+      opacity: 1;
+    }
+    .tooltip-title {
+      display: block;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+    .tooltip-meta {
+      color: #cbd5e1;
+      display: block;
+      font-size: 12px;
+    }
+    svg {
+      width: min(100%, 940px);
+      height: auto;
+      display: block;
+      background: white;
+    }
+    .detail-card {
+      padding: 20px 20px 18px;
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+    }
+    .detail-kicker {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .detail-title {
+      font-size: 26px;
+      line-height: 1.15;
+      margin: 0 0 8px;
+    }
+    .detail-meta {
+      color: #475569;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .detail-section-title {
+      margin: 16px 0 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .detail-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #1f2937;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .detail-list li {
+      margin-bottom: 6px;
+    }
+    .detail-helper {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.45;
+      margin: 0;
+    }
+    .detail-actions {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .heading-button {
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      color: #1f2937;
+      cursor: pointer;
+      display: grid;
+      font: inherit;
+      grid-template-columns: 14px 1fr auto;
+      gap: 10px;
+      padding: 10px 11px;
+      text-align: left;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+    .heading-button:hover,
+    .heading-button:focus-visible {
+      border-color: #94a3b8;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      outline: none;
+      transform: translateY(-1px);
+    }
+    .swatch {
+      border-radius: 999px;
+      height: 12px;
+      width: 12px;
+    }
+    .heading-name {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .count-badge {
+      background: #f8fafc;
+      border-radius: 999px;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 8px;
+    }
+    @media (max-width: 1200px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .detail-card {
+        position: static;
+        max-height: none;
+      }
+    }
+    @media (max-width: 760px) {
+      .wrap {
+        padding: 14px;
+      }
+      .viz-header {
+        display: block;
+        padding: 20px 18px 4px;
+      }
+      .viz-chips {
+        justify-content: flex-start;
+        margin-top: 14px;
+      }
+      .viz-frame {
+        padding: 0 6px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="grid">
+      <div class="viz-card">
+        <div class="viz-header">
+          <div>
+            <div class="viz-eyebrow">100 job adverts analysed</div>
+            <h1 class="viz-title">Curated skills map</h1>
+            <p class="viz-subtitle">Inner colour families are skill headings; outer slices are curated subskills sized by JD frequency.</p>
+          </div>
+          <div class="viz-chips" aria-label="Interaction hints">
+            <span class="chip">Hover to inspect</span>
+            <span class="chip">Click to pin</span>
+          </div>
+        </div>
+        <div class="viz-frame">
+          <svg xmlns="http://www.w3.org/2000/svg" width="940" height="940" viewBox="0 0 940 940" role="img" aria-labelledby="title desc">
+<title id='title'>Sunburst of curated skills demand</title>
+<desc id='desc'>Inner ring shows main skill headings, outer ring shows subskills, sized by JD counts.</desc>
+<rect width='940' height='940' fill='#fbfaf7'/>
+<style>
+
+        text { font-family: Aptos, Calibri, Arial, sans-serif; fill: #111827; pointer-events: none; }
+        .segment path { stroke: #ffffff; stroke-width: 2; }
+        .segment { transition: transform 180ms ease, opacity 180ms ease, filter 180ms ease; cursor: pointer; outline: none; }
+        .segment.is-dimmed { opacity: 0.18; }
+        .segment.is-active { filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.20)); }
+        .segment:focus-visible path { stroke: #111827; stroke-width: 3; }
+        
+</style>
+<g class='ring'>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Learning design &amp; digital learning' data-label='Learning design &amp; digital learning' data-total='74' data-top-subskills='Instructional design (24) || Digital learning production (23) || Learning architecture &amp; programme design (21) || Learning needs analysis (6)' data-color='#1f77b4' data-dx='7.00' data-dy='-12.12'>
+<path d="M 470.00 225.00 A 245.00 245.00 0 0 1 682.18 347.50 L 541.01 429.00 A 82.00 82.00 0 0 0 470.00 388.00 Z" fill="#1f77b4"><title>Learning design &amp; digital learning: 74 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Learning design &amp; digital learning' data-subskill='Instructional design' data-label='Instructional design' data-jds='24' data-pct='24%' data-weight='88.0' data-member-phrases='instructional design | instructional designer | learning principles | design expertise | design process | learning theories | design clear | instructional design and elearning | design expertise strong | design expertise strong background | hit learning principles | instructional design expertise' data-dx='3.04' data-dy='-17.74'>
+<path d="M 470.00 40.00 A 430.00 430.00 0 0 1 613.25 64.56 L 553.95 232.39 A 252.00 252.00 0 0 0 470.00 218.00 Z" fill="#478fc1"><title>Instructional design (Learning design &amp; digital learning)
+JDs: 24
+Share of corpus: 24%
+Weighted score: 88.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Learning design &amp; digital learning' data-subskill='Digital learning production' data-label='Digital learning production' data-jds='23' data-pct='23%' data-weight='94.5' data-member-phrases='engaging digital | impactful learning | creating digital | creating digital learning | digital tools | global learning | delivering impactful learning | engaging learning | digital learning platforms | courseware and media | courseware and media teams | creating digital learning content' data-dx='8.67' data-dy='-15.78'>
+<path d="M 613.25 64.56 A 430.00 430.00 0 0 1 735.37 131.66 L 625.52 271.71 A 252.00 252.00 0 0 0 553.95 232.39 Z" fill="#70a8cf"><title>Digital learning production (Learning design &amp; digital learning)
+JDs: 23
+Share of corpus: 23%
+Weighted score: 94.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Learning design &amp; digital learning' data-subskill='Learning architecture &amp; programme design' data-label='Learning architecture &amp; programme design' data-jds='21' data-pct='21%' data-weight='74.5' data-member-phrases='learning designer | learning programmes | learning products | end learning | end to end learning | learning consultant | scenario based learning | end learning design | learning designer developer | learning designer who | learning designer who has | senior learning designer' data-dx='13.08' data-dy='-12.36'>
+<path d="M 735.37 131.66 A 430.00 430.00 0 0 1 822.82 224.19 L 676.77 325.95 A 252.00 252.00 0 0 0 625.52 271.71 Z" fill="#99c1dd"><title>Learning architecture &amp; programme design (Learning design &amp; digital learning)
+JDs: 21
+Share of corpus: 21%
+Weighted score: 74.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Learning design &amp; digital learning' data-subskill='Learning needs analysis' data-label='Learning needs analysis' data-jds='6' data-pct='6%' data-weight='18.0' data-member-phrases='learning needs | assess learning needs | learner centred | achieve client learning needs | client learning needs | learner centred design | learner centred digital | learner centred digital learning | learning needs and define | learning needs the role | learning needs through designing | principles and learner centred' data-dx='15.19' data-dy='-9.65'>
+<path d="M 822.82 224.19 A 430.00 430.00 0 0 1 842.39 255.00 L 688.24 344.00 A 252.00 252.00 0 0 0 676.77 325.95 Z" fill="#c2daea"><title>Learning needs analysis (Learning design &amp; digital learning)
+JDs: 6
+Share of corpus: 6%
+Weighted score: 18.0</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Stakeholder management &amp; collaboration' data-label='Stakeholder management &amp; collaboration' data-total='67' data-top-subskills='Stakeholder management (22) || Cross-functional collaboration (11) || SME collaboration (10) || Performance consulting (10) || Client relationship management (9) || Business alignment (5)' data-color='#ff7f0e' data-dx='13.98' data-dy='-0.69'>
+<path d="M 682.18 347.50 A 245.00 245.00 0 0 1 693.25 570.92 L 544.72 503.78 A 82.00 82.00 0 0 0 541.01 429.00 Z" fill="#ff7f0e"><title>Stakeholder management &amp; collaboration: 67 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Stakeholder management &amp; collaboration' data-subskill='Stakeholder management' data-label='Stakeholder management' data-jds='22' data-pct='22%' data-weight='55.5' data-member-phrases='stakeholder management | stakeholder engagement | senior stakeholders | external stakeholders | internal stakeholders | technical stakeholders | clients and internal stakeholders | internal and external stakeholders | non technical stakeholders | collaboratively with senior stakeholders | managing external stakeholders | senior stakeholders to understand' data-dx='16.80' data-dy='-6.47'>
+<path d="M 842.39 255.00 A 430.00 430.00 0 0 1 890.35 379.41 L 716.34 416.91 A 252.00 252.00 0 0 0 688.24 344.00 Z" fill="#ff9639"><title>Stakeholder management (Stakeholder management &amp; collaboration)
+JDs: 22
+Share of corpus: 22%
+Weighted score: 55.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Stakeholder management &amp; collaboration' data-subskill='Cross-functional collaboration' data-label='Cross-functional collaboration' data-jds='11' data-pct='11%' data-weight='36.0' data-member-phrases='cross functional | cross functional teams | functional teams | collaborating with subject | cross functional collaboration | collaborate with cross functional | cross functional industries | collaborative and cross functional | cross functional and global | cross functional work | cross functional work experience | cross functional working' data-dx='17.84' data-dy='-2.41'>
+<path d="M 890.35 379.41 A 430.00 430.00 0 0 1 899.31 445.67 L 721.60 455.74 A 252.00 252.00 0 0 0 716.34 416.91 Z" fill="#ffa453"><title>Cross-functional collaboration (Stakeholder management &amp; collaboration)
+JDs: 11
+Share of corpus: 11%
+Weighted score: 36.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Stakeholder management &amp; collaboration' data-subskill='SME collaboration' data-label='SME collaboration' data-jds='10' data-pct='10%' data-weight='65.0' data-member-phrases='subject matter | matter experts | subject matter experts | matter expertise | subject matter expertise | collaborating with subject matter | collaborate with subject matter | matter expertise in python | matter expertise strong | matter expertise strong background | matter experts to gather | subject matter expert' data-dx='18.00' data-dy='0.25'>
+<path d="M 899.31 445.67 A 430.00 430.00 0 0 1 898.45 506.47 L 721.09 491.37 A 252.00 252.00 0 0 0 721.60 455.74 Z" fill="#ffb26e"><title>SME collaboration (Stakeholder management &amp; collaboration)
+JDs: 10
+Share of corpus: 10%
+Weighted score: 65.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Stakeholder management &amp; collaboration' data-subskill='Performance consulting' data-label='Performance consulting' data-jds='10' data-pct='10%' data-weight='28.5' data-member-phrases='business needs | business objectives | market insight | client challenges | client challenges into exciting | loves turning client challenges | turning client challenges | identify skills gaps | interpret market insight | language and business needs | understand business objectives | larger business needs' data-dx='17.78' data-dy='2.79'>
+<path d="M 898.45 506.47 A 430.00 430.00 0 0 1 889.02 566.53 L 715.57 526.57 A 252.00 252.00 0 0 0 721.09 491.37 Z" fill="#ffc088"><title>Performance consulting (Stakeholder management &amp; collaboration)
+JDs: 10
+Share of corpus: 10%
+Weighted score: 28.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Stakeholder management &amp; collaboration' data-subskill='Client relationship management' data-label='Client relationship management' data-jds='9' data-pct='9%' data-weight='24.8' data-member-phrases='client relationships | communicate with clients | business partner | clients at all levels | confidence to engage clients | development business partner | engage clients | engage clients at all | client relationships whilst | client relationships whilst collaborating | manage senior client relationships | managing client relationships' data-dx='17.25' data-dy='5.15'>
+<path d="M 889.02 566.53 A 430.00 430.00 0 0 1 873.37 618.97 L 706.39 557.31 A 252.00 252.00 0 0 0 715.57 526.57 Z" fill="#ffcea3"><title>Client relationship management (Stakeholder management &amp; collaboration)
+JDs: 9
+Share of corpus: 9%
+Weighted score: 24.8</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Stakeholder management &amp; collaboration' data-subskill='Business alignment' data-label='Business alignment' data-jds='5' data-pct='5%' data-weight='13.0' data-member-phrases='business goals | aligned with business goals | alignment with business goals | business goals and delivering | high level business goals | level business goals | needs and business goals | aligned to business goals' data-dx='16.65' data-dy='6.83'>
+<path d="M 873.37 618.97 A 430.00 430.00 0 0 1 861.83 647.12 L 699.63 573.80 A 252.00 252.00 0 0 0 706.39 557.31 Z" fill="#ffdcbd"><title>Business alignment (Stakeholder management &amp; collaboration)
+JDs: 5
+Share of corpus: 5%
+Weighted score: 13.0</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Strategy &amp; capability development' data-label='Strategy &amp; capability development' data-total='41' data-top-subskills='Product strategy &amp; product development (10) || Leadership &amp; talent development (9) || Learning strategy (8) || Capability development (7) || Organisational development &amp; learning culture (7)' data-color='#2ca02c' data-dx='10.57' data-dy='9.17'>
+<path d="M 693.25 570.92 A 245.00 245.00 0 0 1 601.39 676.79 L 513.98 539.21 A 82.00 82.00 0 0 0 544.72 503.78 Z" fill="#2ca02c"><title>Strategy &amp; capability development: 41 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Strategy &amp; capability development' data-subskill='Product strategy &amp; product development' data-label='Product strategy &amp; product development' data-jds='10' data-pct='10%' data-weight='30.8' data-member-phrases='product development | software development | development methodologies | development of digital | product strategy | development of digital learning | product development context | product development design | product development design tools | agile scrum development methodologies | development methodologies and theories | development of digital education' data-dx='15.84' data-dy='8.56'>
+<path d="M 861.83 647.12 A 430.00 430.00 0 0 1 832.93 700.61 L 682.69 605.15 A 252.00 252.00 0 0 0 699.63 573.80 Z" fill="#51b151"><title>Product strategy &amp; product development (Strategy &amp; capability development)
+JDs: 10
+Share of corpus: 10%
+Weighted score: 30.8</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Strategy &amp; capability development' data-subskill='Leadership &amp; talent development' data-label='Leadership &amp; talent development' data-jds='9' data-pct='9%' data-weight='43.8' data-member-phrases='leadership development | talent development | development programmes | career development | career development initiatives | commercial development programmes | leadership development experience | leadership development experience slt | supporting commercial development programmes | talent development programs | academic development programmes | areas like leadership development' data-dx='14.55' data-dy='10.60'>
+<path d="M 832.93 700.61 A 430.00 430.00 0 0 1 800.70 744.84 L 663.81 631.07 A 252.00 252.00 0 0 0 682.69 605.15 Z" fill="#6ebe6e"><title>Leadership &amp; talent development (Strategy &amp; capability development)
+JDs: 9
+Share of corpus: 9%
+Weighted score: 43.8</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Strategy &amp; capability development' data-subskill='Learning strategy' data-label='Learning strategy' data-jds='8' data-pct='8%' data-weight='20.0' data-member-phrases='l and d strategy | learning strategy | strategic goals | strategic mind | strategic mind someone | strategic mind someone who | align strategic goals | future proofed learning strategy | leadership and learning strategy | learning strategy bonus | proofed learning strategy | strategic goals and communicate' data-dx='13.17' data-dy='12.27'>
+<path d="M 800.70 744.84 A 430.00 430.00 0 0 1 767.53 780.44 L 644.37 651.93 A 252.00 252.00 0 0 0 663.81 631.07 Z" fill="#8ccb8c"><title>Learning strategy (Strategy &amp; capability development)
+JDs: 8
+Share of corpus: 8%
+Weighted score: 20.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Strategy &amp; capability development' data-subskill='Capability development' data-label='Capability development' data-jds='7' data-pct='7%' data-weight='21.0' data-member-phrases='capability development | build capability | build capability across its | capability building | capability development frameworks | designed to build capability | development frameworks | capability building across product | capability building and organisational | foster capability development | strategic capability building | support capability building' data-dx='11.80' data-dy='13.60'>
+<path d="M 767.53 780.44 A 430.00 430.00 0 0 1 735.37 808.34 L 625.52 668.29 A 252.00 252.00 0 0 0 644.37 651.93 Z" fill="#a9d8a9"><title>Capability development (Strategy &amp; capability development)
+JDs: 7
+Share of corpus: 7%
+Weighted score: 21.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Strategy &amp; capability development' data-subskill='Organisational development &amp; learning culture' data-label='Organisational development &amp; learning culture' data-jds='7' data-pct='7%' data-weight='10.0' data-member-phrases='culture of continuous | culture of continuous learning | organisational development | strengthen culture | culture of continuous development' data-dx='10.39' data-dy='14.70'>
+<path d="M 735.37 808.34 A 430.00 430.00 0 0 1 700.61 832.93 L 605.15 682.69 A 252.00 252.00 0 0 0 625.52 668.29 Z" fill="#c6e5c6"><title>Organisational development &amp; learning culture (Strategy &amp; capability development)
+JDs: 7
+Share of corpus: 7%
+Weighted score: 10.0</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Learning platforms &amp; learning tech' data-label='Learning platforms &amp; learning tech' data-total='42' data-top-subskills='Learning platform ecosystem (23) || LMS / LXP administration (7) || Emerging learning technology (7) || Standards &amp; interoperability (5)' data-color='#d62728' data-dx='3.72' data-dy='13.50'>
+<path d="M 601.39 676.79 A 245.00 245.00 0 0 1 463.07 714.90 L 467.68 551.97 A 82.00 82.00 0 0 0 513.98 539.21 Z" fill="#d62728"><title>Learning platforms &amp; learning tech: 42 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Learning platforms &amp; learning tech' data-subskill='Learning platform ecosystem' data-label='Learning platform ecosystem' data-jds='23' data-pct='23%' data-weight='76.0' data-member-phrases='lms platforms | learning platforms | learning systems | management systems | lms and lxp | based lms platforms | learning platform | platform operations | academy s learning systems | learning management systems | learning platform including | learning platform including e' data-dx='7.06' data-dy='16.56'>
+<path d="M 700.61 832.93 A 430.00 430.00 0 0 1 572.45 887.62 L 530.04 714.74 A 252.00 252.00 0 0 0 605.15 682.69 Z" fill="#dd4d4e"><title>Learning platform ecosystem (Learning platforms &amp; learning tech)
+JDs: 23
+Share of corpus: 23%
+Weighted score: 76.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Learning platforms &amp; learning tech' data-subskill='LMS / LXP administration' data-label='LMS / LXP administration' data-jds='7' data-pct='7%' data-weight='47.0' data-member-phrases='moodle based | administering totara | administering totara learn | learn or moodle based | lms administration | lms administrator | managing lms | managing lms environments | managing lms environments used | moodle based lms | moodle based lms platforms | totara learn' data-dx='3.42' data-dy='17.67'>
+<path d="M 572.45 887.62 A 430.00 430.00 0 0 1 530.65 895.70 L 505.54 719.48 A 252.00 252.00 0 0 0 530.04 714.74 Z" fill="#e47576"><title>LMS / LXP administration (Learning platforms &amp; learning tech)
+JDs: 7
+Share of corpus: 7%
+Weighted score: 47.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Learning platforms &amp; learning tech' data-subskill='Emerging learning technology' data-label='Emerging learning technology' data-jds='7' data-pct='7%' data-weight='35.0' data-member-phrases='emerging technologies | new technologies | clear technology | technology stacks | emerging technologies and digital | clear technology recommendations | learning technology stacks | technology stacks within large | these into clear technology | about exploring new technologies | both emerging technologies | clear technology capability' data-dx='1.65' data-dy='17.92'>
+<path d="M 530.65 895.70 A 430.00 430.00 0 0 1 488.25 899.61 L 480.70 721.77 A 252.00 252.00 0 0 0 505.54 719.48 Z" fill="#ec9d9d"><title>Emerging learning technology (Learning platforms &amp; learning tech)
+JDs: 7
+Share of corpus: 7%
+Weighted score: 35.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Learning platforms &amp; learning tech' data-subskill='Standards &amp; interoperability' data-label='Standards &amp; interoperability' data-jds='5' data-pct='5%' data-weight='21.0' data-member-phrases='scorm xapi | scorm xapi packages | xapi packages | content standards scorm xapi | standards scorm xapi | ensure scorm xapi | ensure scorm xapi compliance | scorm xapi compliance' data-dx='0.13' data-dy='18.00'>
+<path d="M 488.25 899.61 A 430.00 430.00 0 0 1 457.83 899.83 L 462.87 721.90 A 252.00 252.00 0 0 0 480.70 721.77 Z" fill="#f3c4c4"><title>Standards &amp; interoperability (Learning platforms &amp; learning tech)
+JDs: 5
+Share of corpus: 5%
+Weighted score: 21.0</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Project delivery &amp; prioritisation' data-label='Project delivery &amp; prioritisation' data-total='49' data-top-subskills='Multi-project management &amp; prioritisation (20) || Project management (14) || Deadline &amp; time management (9) || Change management (4) || Delivery coordination (2)' data-color='#9467bd' data-dx='-5.13' data-dy='13.03'>
+<path d="M 463.07 714.90 A 245.00 245.00 0 0 1 308.13 653.91 L 415.82 531.56 A 82.00 82.00 0 0 0 467.68 551.97 Z" fill="#9467bd"><title>Project delivery &amp; prioritisation: 49 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Project delivery &amp; prioritisation' data-subskill='Multi-project management &amp; prioritisation' data-label='Multi-project management &amp; prioritisation' data-jds='20' data-pct='20%' data-weight='82.0' data-member-phrases='manage multiple | multiple projects | manage multiple projects | manage multiple programmes | manage multiple programmes simultaneously | managing multiple | organizational and time | projects simultaneously | able to manage multiple | manage multiple simulation | manage multiple simulation builds | manage multiple stakeholders' data-dx='-3.04' data-dy='17.74'>
+<path d="M 457.83 899.83 A 430.00 430.00 0 0 1 338.28 879.33 L 392.81 709.89 A 252.00 252.00 0 0 0 462.87 721.90 Z" fill="#a782c8"><title>Multi-project management &amp; prioritisation (Project delivery &amp; prioritisation)
+JDs: 20
+Share of corpus: 20%
+Weighted score: 82.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Project delivery &amp; prioritisation' data-subskill='Project management' data-label='Project management' data-jds='14' data-pct='14%' data-weight='38.0' data-member-phrases='project management | project manager | experienced project manager | modern project management | project manager to support | certified csod project managers | csod project managers | csod project managers 3+ | digital learning project management | learning project management | project management principles | project management within software' data-dx='-7.18' data-dy='16.51'>
+<path d="M 338.28 879.33 A 430.00 430.00 0 0 1 260.29 845.40 L 347.10 690.00 A 252.00 252.00 0 0 0 392.81 709.89 Z" fill="#b597d1"><title>Project management (Project delivery &amp; prioritisation)
+JDs: 14
+Share of corpus: 14%
+Weighted score: 38.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Project delivery &amp; prioritisation' data-subskill='Deadline &amp; time management' data-label='Deadline &amp; time management' data-jds='9' data-pct='9%' data-weight='24.0' data-member-phrases='meet deadlines | time management | time zones | deadlines are met | deadlines are met while | ensure deadlines | ensure deadlines are met' data-dx='-9.76' data-dy='15.12'>
+<path d="M 260.29 845.40 A 430.00 430.00 0 0 1 214.31 815.72 L 320.15 672.61 A 252.00 252.00 0 0 0 347.10 690.00 Z" fill="#c4acdb"><title>Deadline &amp; time management (Project delivery &amp; prioritisation)
+JDs: 9
+Share of corpus: 9%
+Weighted score: 24.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Project delivery &amp; prioritisation' data-subskill='Change management' data-label='Change management' data-jds='4' data-pct='4%' data-weight='5.5' data-member-phrases='change or transition | period of change | change management' data-dx='-11.11' data-dy='14.16'>
+<path d="M 214.31 815.72 A 430.00 430.00 0 0 1 195.16 800.70 L 308.93 663.81 A 252.00 252.00 0 0 0 320.15 672.61 Z" fill="#d3c1e4"><title>Change management (Project delivery &amp; prioritisation)
+JDs: 4
+Share of corpus: 4%
+Weighted score: 5.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Project delivery &amp; prioritisation' data-subskill='Delivery coordination' data-label='Delivery coordination' data-jds='2' data-pct='2%' data-weight='6.0' data-member-phrases='manage content | manage content delivery | upload and manage content' data-dx='-11.70' data-dy='13.68'>
+<path d="M 195.16 800.70 A 430.00 430.00 0 0 1 185.91 792.79 L 303.51 659.17 A 252.00 252.00 0 0 0 308.93 663.81 Z" fill="#e2d5ed"><title>Delivery coordination (Project delivery &amp; prioritisation)
+JDs: 2
+Share of corpus: 2%
+Weighted score: 6.0</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Quality, standards &amp; continuous improvement' data-label='Quality, standards &amp; continuous improvement' data-total='36' data-top-subskills='Attention to detail (11) || Quality assurance &amp; standards (10) || Continuous improvement (8) || Quality delivery (5) || Risk management (2)' data-color='#8c564b' data-dx='-11.60' data-dy='7.84'>
+<path d="M 308.13 653.91 A 245.00 245.00 0 0 1 239.00 551.62 L 392.68 497.32 A 82.00 82.00 0 0 0 415.82 531.56 Z" fill="#8c564b"><title>Quality, standards &amp; continuous improvement: 36 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Quality, standards &amp; continuous improvement' data-subskill='Attention to detail' data-label='Attention to detail' data-jds='11' data-pct='11%' data-weight='17.0' data-member-phrases='attention to detail | eye for detail | keen eye for detail' data-dx='-12.91' data-dy='12.55'>
+<path d="M 185.91 792.79 A 430.00 430.00 0 0 1 139.30 744.84 L 276.19 631.07 A 252.00 252.00 0 0 0 303.51 659.17 Z" fill="#a0746b"><title>Attention to detail (Quality, standards &amp; continuous improvement)
+JDs: 11
+Share of corpus: 11%
+Weighted score: 17.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Quality, standards &amp; continuous improvement' data-subskill='Quality assurance &amp; standards' data-label='Quality assurance &amp; standards' data-jds='10' data-pct='10%' data-weight='27.5' data-member-phrases='quality assurance | industry standards | highest standards | highest standards of functionality | meet the highest standards | quality standards | standards of functionality | accessibility standards | follow quality assurance | accessibility standards wcac | industry standards and share | trends and industry standards' data-dx='-14.62' data-dy='10.50'>
+<path d="M 139.30 744.84 A 430.00 430.00 0 0 1 103.84 695.45 L 255.41 602.13 A 252.00 252.00 0 0 0 276.19 631.07 Z" fill="#b08b84"><title>Quality assurance &amp; standards (Quality, standards &amp; continuous improvement)
+JDs: 10
+Share of corpus: 10%
+Weighted score: 27.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Quality, standards &amp; continuous improvement' data-subskill='Continuous improvement' data-label='Continuous improvement' data-jds='8' data-pct='8%' data-weight='39.0' data-member-phrases='continuous improvement | process improvements | applying continuous improvement | applying continuous improvement methods | continuous improvement methodologies | continuous improvement methods | ensure sustainable process improvements | implementing process improvements | other continuous improvement | other continuous improvement methodologies | sustainable process improvements | continuous improvement focused' data-dx='-15.84' data-dy='8.56'>
+<path d="M 103.84 695.45 A 430.00 430.00 0 0 1 80.72 652.64 L 241.86 577.04 A 252.00 252.00 0 0 0 255.41 602.13 Z" fill="#c0a29c"><title>Continuous improvement (Quality, standards &amp; continuous improvement)
+JDs: 8
+Share of corpus: 8%
+Weighted score: 39.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Quality, standards &amp; continuous improvement' data-subskill='Quality delivery' data-label='Quality delivery' data-jds='5' data-pct='5%' data-weight='28.0' data-member-phrases='high quality work | quality work | high quality educational | quality educational | maintaining high quality | maintaining high quality work | while maintaining high quality | delivering high quality educational | high quality work assets | quality work assets | high quality educational outputs | quality educational outputs' data-dx='-16.56' data-dy='7.06'>
+<path d="M 80.72 652.64 A 430.00 430.00 0 0 1 68.78 624.67 L 234.87 560.64 A 252.00 252.00 0 0 0 241.86 577.04 Z" fill="#d0bab5"><title>Quality delivery (Quality, standards &amp; continuous improvement)
+JDs: 5
+Share of corpus: 5%
+Weighted score: 28.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Quality, standards &amp; continuous improvement' data-subskill='Risk management' data-label='Risk management' data-jds='2' data-pct='2%' data-weight='4.0' data-member-phrases='risk management' data-dx='-16.89' data-dy='6.24'>
+<path d="M 68.78 624.67 A 430.00 430.00 0 0 1 64.56 613.25 L 232.39 553.95 A 252.00 252.00 0 0 0 234.87 560.64 Z" fill="#dfd1ce"><title>Risk management (Quality, standards &amp; continuous improvement)
+JDs: 2
+Share of corpus: 2%
+Weighted score: 4.0</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Coaching, facilitation &amp; training delivery' data-label='Coaching, facilitation &amp; training delivery' data-total='28' data-top-subskills='Training delivery (13) || Coaching &amp; mentoring (8) || Facilitation (4) || Training content (3)' data-color='#e377c2' data-dx='-13.86' data-dy='1.97'>
+<path d="M 239.00 551.62 A 245.00 245.00 0 0 1 225.39 456.14 L 388.13 465.36 A 82.00 82.00 0 0 0 392.68 497.32 Z" fill="#e377c2"><title>Coaching, facilitation &amp; training delivery: 28 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Coaching, facilitation &amp; training delivery' data-subskill='Training delivery' data-label='Training delivery' data-jds='13' data-pct='13%' data-weight='31.5' data-member-phrases='compliance led training | led training | compliance training | effective training | software training | training consulting | training consulting individuals | sales training | technical training | all round software training | delivering effective training | effective training that cuts' data-dx='-17.45' data-dy='4.41'>
+<path d="M 64.56 613.25 A 430.00 430.00 0 0 1 45.20 536.67 L 221.05 509.07 A 252.00 252.00 0 0 0 232.39 553.95 Z" fill="#e88fcc"><title>Training delivery (Coaching, facilitation &amp; training delivery)
+JDs: 13
+Share of corpus: 13%
+Weighted score: 31.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Coaching, facilitation &amp; training delivery' data-subskill='Coaching &amp; mentoring' data-label='Coaching &amp; mentoring' data-jds='8' data-pct='8%' data-weight='14.5' data-member-phrases='coaching | mentoring | coaching managers | team and mentoring' data-dx='-17.91' data-dy='1.78'>
+<path d="M 45.20 536.67 A 430.00 430.00 0 0 1 40.39 488.25 L 218.23 480.70 A 252.00 252.00 0 0 0 221.05 509.07 Z" fill="#eda8d8"><title>Coaching &amp; mentoring (Coaching, facilitation &amp; training delivery)
+JDs: 8
+Share of corpus: 8%
+Weighted score: 14.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Coaching, facilitation &amp; training delivery' data-subskill='Facilitation' data-label='Facilitation' data-jds='4' data-pct='4%' data-weight='12.0' data-member-phrases='facilitation and training | teaching and learning | done facilitation and training | facilitation and training strong | he teaching and learning | teaching and learning meets' data-dx='-18.00' data-dy='0.25'>
+<path d="M 40.39 488.25 A 430.00 430.00 0 0 1 40.04 463.92 L 218.03 466.43 A 252.00 252.00 0 0 0 218.23 480.70 Z" fill="#f2c1e3"><title>Facilitation (Coaching, facilitation &amp; training delivery)
+JDs: 4
+Share of corpus: 4%
+Weighted score: 12.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Coaching, facilitation &amp; training delivery' data-subskill='Training content' data-label='Training content' data-jds='3' data-pct='3%' data-weight='12.0' data-member-phrases='training content | ensure that training content | training content is correctly | although the training content | deliver training content | deliver training content clearly | training content clearly' data-dx='-17.99' data-dy='-0.64'>
+<path d="M 40.04 463.92 A 430.00 430.00 0 0 1 40.69 445.67 L 218.40 455.74 A 252.00 252.00 0 0 0 218.03 466.43 Z" fill="#f7daee"><title>Training content (Coaching, facilitation &amp; training delivery)
+JDs: 3
+Share of corpus: 3%
+Weighted score: 12.0</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Communication' data-label='Communication' data-total='27' data-top-subskills='Core communication (21) || Writing &amp; verbal communication (6)' data-color='#7f7f7f' data-dx='-13.57' data-dy='-3.43'>
+<path d="M 225.39 456.14 A 245.00 245.00 0 0 1 248.20 365.94 L 395.76 435.17 A 82.00 82.00 0 0 0 388.13 465.36 Z" fill="#7f7f7f"><title>Communication: 27 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Communication' data-subskill='Core communication' data-label='Core communication' data-jds='21' data-pct='21%' data-weight='23.5' data-member-phrases='communication' data-dx='-17.62' data-dy='-3.67'>
+<path d="M 40.69 445.67 A 430.00 430.00 0 0 1 66.63 321.03 L 233.61 382.69 A 252.00 252.00 0 0 0 218.40 455.74 Z" fill="#969696"><title>Core communication (Communication)
+JDs: 21
+Share of corpus: 21%
+Weighted score: 23.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Communication' data-subskill='Writing &amp; verbal communication' data-label='Writing &amp; verbal communication' data-jds='6' data-pct='6%' data-weight='15.5' data-member-phrases='writing | communicator with strong written | written and verbal | writing storyboarding' data-dx='-16.61' data-dy='-6.95'>
+<path d="M 66.63 321.03 A 430.00 430.00 0 0 1 80.72 287.36 L 241.86 362.96 A 252.00 252.00 0 0 0 233.61 382.69 Z" fill="#dcdcdc"><title>Writing &amp; verbal communication (Communication)
+JDs: 6
+Share of corpus: 6%
+Weighted score: 15.5</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Analytics &amp; problem solving' data-label='Analytics &amp; problem solving' data-total='29' data-top-subskills='Data-driven decision making (12) || Problem solving (11) || Learning analytics (6)' data-color='#bcbd22' data-dx='-11.20' data-dy='-8.40'>
+<path d="M 248.20 365.94 A 245.00 245.00 0 0 1 308.13 286.09 L 415.82 408.44 A 82.00 82.00 0 0 0 395.76 435.17 Z" fill="#bcbd22"><title>Analytics &amp; problem solving: 29 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Analytics &amp; problem solving' data-subskill='Data-driven decision making' data-label='Data-driven decision making' data-jds='12' data-pct='12%' data-weight='37.5' data-member-phrases='data driven | analytical and problem | technical data | data driven design | data driven approach | essential technical data | provide essential technical data | required technical data | technical data and expertise | analytical and data driven | data driven content | data driven content roadmap' data-dx='-15.59' data-dy='-9.00'>
+<path d="M 80.72 287.36 A 430.00 430.00 0 0 1 117.18 224.19 L 263.23 325.95 A 252.00 252.00 0 0 0 241.86 362.96 Z" fill="#c8c849"><title>Data-driven decision making (Analytics &amp; problem solving)
+JDs: 12
+Share of corpus: 12%
+Weighted score: 37.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Analytics &amp; problem solving' data-subskill='Problem solving' data-label='Problem solving' data-jds='11' data-pct='11%' data-weight='53.0' data-member-phrases='problem solving | analytical and problem solving | problem solving skills | solving skills | problem solving and documentation | solve problems | problem solving mindset | solving mindset | initiative and solve problems | solving skills to identify | structured problem solving | creative problem solving' data-dx='-13.92' data-dy='-11.41'>
+<path d="M 117.18 224.19 A 430.00 430.00 0 0 1 159.56 172.47 L 288.07 295.63 A 252.00 252.00 0 0 0 263.23 325.95 Z" fill="#dadb86"><title>Problem solving (Analytics &amp; problem solving)
+JDs: 11
+Share of corpus: 11%
+Weighted score: 53.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Analytics &amp; problem solving' data-subskill='Learning analytics' data-label='Learning analytics' data-jds='6' data-pct='6%' data-weight='30.0' data-member-phrases='data analyst | learning data | learning data analyst | analytics dashboards | learning analytics | data analyst systems | data analyst systems specialist | learning data analyst systems | analysis of learning data | data analyst or similar | data analyst system | data analyst system specialist' data-dx='-12.45' data-dy='-13.00'>
+<path d="M 159.56 172.47 A 430.00 430.00 0 0 1 185.91 147.21 L 303.51 280.83 A 252.00 252.00 0 0 0 288.07 295.63 Z" fill="#ecedc3"><title>Learning analytics (Analytics &amp; problem solving)
+JDs: 6
+Share of corpus: 6%
+Weighted score: 30.0</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='Authoring tools &amp; multimedia production' data-label='Authoring tools &amp; multimedia production' data-total='38' data-top-subskills='Authoring tools (14) || Articulate toolchain (9) || Adobe &amp; creative tools (6) || Graphic &amp; visual design (5) || Multimedia &amp; video production (4)' data-color='#17becf' data-dx='-6.13' data-dy='-12.59'>
+<path d="M 308.13 286.09 A 245.00 245.00 0 0 1 425.18 229.13 L 455.00 389.38 A 82.00 82.00 0 0 0 415.82 408.44 Z" fill="#17becf"><title>Authoring tools &amp; multimedia production: 38 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Authoring tools &amp; multimedia production' data-subskill='Authoring tools' data-label='Authoring tools' data-jds='14' data-pct='14%' data-weight='57.5' data-member-phrases='authoring tools | content authoring | authoring tool | content authoring tools | other authoring | other authoring tools | authoring tools and lms | authoring tools e | authoring tools e g | authoring tools essential | digital authoring tools | including content authoring' data-dx='-10.50' data-dy='-14.62'>
+<path d="M 185.91 147.21 A 430.00 430.00 0 0 1 255.00 97.61 L 344.00 251.76 A 252.00 252.00 0 0 0 303.51 280.83 Z" fill="#40c9d7"><title>Authoring tools (Authoring tools &amp; multimedia production)
+JDs: 14
+Share of corpus: 14%
+Weighted score: 57.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Authoring tools &amp; multimedia production' data-subskill='Articulate toolchain' data-label='Articulate toolchain' data-jds='9' data-pct='9%' data-weight='20.0' data-member-phrases='articulate storyline | articulate 360 | articulate rise | articulate 360 suite | articulate rise and storyline | articulate storyline and ideally | articulate storyline and other | digital learning articulate 360 | elucidat or articulate rise | ideally articulate rise | learning articulate 360 | learning articulate 360 suite' data-dx='-7.99' data-dy='-16.13'>
+<path d="M 255.00 97.61 A 430.00 430.00 0 0 1 304.04 73.32 L 372.74 237.52 A 252.00 252.00 0 0 0 344.00 251.76 Z" fill="#60d2de"><title>Articulate toolchain (Authoring tools &amp; multimedia production)
+JDs: 9
+Share of corpus: 9%
+Weighted score: 20.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Authoring tools &amp; multimedia production' data-subskill='Adobe &amp; creative tools' data-label='Adobe &amp; creative tools' data-jds='6' data-pct='6%' data-weight='8.5' data-member-phrases='adobe creative suite | adobe creative | adobe creative cloud | such as adobe creative' data-dx='-6.24' data-dy='-16.89'>
+<path d="M 304.04 73.32 A 430.00 430.00 0 0 1 338.28 60.67 L 392.81 230.11 A 252.00 252.00 0 0 0 372.74 237.52 Z" fill="#80dbe4"><title>Adobe &amp; creative tools (Authoring tools &amp; multimedia production)
+JDs: 6
+Share of corpus: 6%
+Weighted score: 8.5</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Authoring tools &amp; multimedia production' data-subskill='Graphic &amp; visual design' data-label='Graphic &amp; visual design' data-jds='5' data-pct='5%' data-weight='12.0' data-member-phrases='graphic design | creative design | creative design knowledge | creative design knowledge essential | technical and creative design' data-dx='-4.90' data-dy='-17.32'>
+<path d="M 338.28 60.67 A 430.00 430.00 0 0 1 367.55 52.38 L 409.96 225.26 A 252.00 252.00 0 0 0 392.81 230.11 Z" fill="#a0e4eb"><title>Graphic &amp; visual design (Authoring tools &amp; multimedia production)
+JDs: 5
+Share of corpus: 5%
+Weighted score: 12.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='Authoring tools &amp; multimedia production' data-subskill='Multimedia &amp; video production' data-label='Multimedia &amp; video production' data-jds='4' data-pct='4%' data-weight='14.5' data-member-phrases='engaging multimedia | video editing | engaging multimedia online | engaging multimedia onlinelearning | produce engaging multimedia | produce engaging multimedia online | basic video editing | developing engaging multimedia | developing engaging multimedia assets | engaging multimedia assets' data-dx='-3.79' data-dy='-17.60'>
+<path d="M 367.55 52.38 A 430.00 430.00 0 0 1 391.34 47.26 L 423.90 222.25 A 252.00 252.00 0 0 0 409.96 225.26 Z" fill="#c0edf2"><title>Multimedia &amp; video production (Authoring tools &amp; multimedia production)
+JDs: 4
+Share of corpus: 4%
+Weighted score: 14.5</title></path>
+</g>
+<g class='segment segment-heading' tabindex='0' role='button' data-type='heading' data-heading='AI capability' data-label='AI capability' data-total='13' data-top-subskills='Applied AI in workflow (7) || AI tools literacy (6)' data-color='#003f5c' data-dx='-1.29' data-dy='-13.94'>
+<path d="M 425.18 229.13 A 245.00 245.00 0 0 1 470.00 225.00 L 470.00 388.00 A 82.00 82.00 0 0 0 455.00 389.38 Z" fill="#003f5c"><title>AI capability: 13 total subskill counts</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='AI capability' data-subskill='Applied AI in workflow' data-label='Applied AI in workflow' data-jds='7' data-pct='7%' data-weight='32.0' data-member-phrases='ai and its | ai and its application | ai enabled | agentic ai | ai driven | agentic ai enabled | agentic ai enabled solutions | ai enabled processes | ai enabled solutions | lxps and agentic ai | ai driven solutions | ai driven tools' data-dx='-2.41' data-dy='-17.84'>
+<path d="M 391.34 47.26 A 430.00 430.00 0 0 1 433.53 41.55 L 448.63 218.91 A 252.00 252.00 0 0 0 423.90 222.25 Z" fill="#2d6179"><title>Applied AI in workflow (AI capability)
+JDs: 7
+Share of corpus: 7%
+Weighted score: 32.0</title></path>
+</g>
+<g class='segment segment-subskill' tabindex='0' role='button' data-type='subskill' data-heading='AI capability' data-subskill='AI tools literacy' data-label='AI tools literacy' data-jds='6' data-pct='6%' data-weight='23.0' data-member-phrases='ai tools | more proficient with ai | proficient with ai | proficient with ai tools | relevant ai tools | simulations for ai tools | ai tools to prototype | embed generative ai tools | emerging ai tools | generative ai tools | passion for ai tools' data-dx='-0.76' data-dy='-17.98'>
+<path d="M 433.53 41.55 A 430.00 430.00 0 0 1 470.00 40.00 L 470.00 218.00 A 252.00 252.00 0 0 0 448.63 218.91 Z" fill="#bacbd2"><title>AI tools literacy (AI capability)
+JDs: 6
+Share of corpus: 6%
+Weighted score: 23.0</title></path>
+</g>
+</g>
+<circle cx='470' cy='470' r='70' fill='#ffffff' stroke='#e5e7eb' stroke-width='2'/>
+<text x='470' y='462' text-anchor='middle' style='font-size:32px;font-weight:700;'>100</text>
+<text x='470' y='492' text-anchor='middle' style='font-size:15px;fill:#475569;'>Analysed JDs</text>
+</svg>
+        </div>
+        <div class="chart-tooltip" id="chart-tooltip" role="status" aria-live="polite"></div>
+      </div>
+      <aside class="detail-card" id="detail-panel">
+      </aside>
+    </div>
+  </div>
+  <script>
+    const segments = Array.from(document.querySelectorAll('.segment'));
+    const headings = Array.from(document.querySelectorAll('.segment-heading'));
+    const chart = document.querySelector('.viz-card');
+    const panel = document.getElementById('detail-panel');
+    const tooltip = document.getElementById('chart-tooltip');
+    let pinned = null;
+
+    function escapeHTML(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function renderList(items, emptyMessage) {
+      if (!items.length) {
+        return `<p class="detail-helper">${escapeHTML(emptyMessage)}</p>`;
+      }
+      return `<ul class="detail-list">${items.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>`;
+    }
+
+    function headingList() {
+      return headings.map(heading => `
+        <button class="heading-button" type="button" data-heading-link="${escapeHTML(heading.dataset.heading)}">
+          <span class="swatch" style="background: ${escapeHTML(heading.dataset.color || '#64748b')}"></span>
+          <span class="heading-name">${escapeHTML(heading.dataset.heading)}</span>
+          <span class="count-badge">${escapeHTML(heading.dataset.total)}</span>
+        </button>
+      `).join('');
+    }
+
+    function subskillList(headingName) {
+      const heading = headings.find(item => item.dataset.heading === headingName);
+      const color = heading?.dataset.color || '#64748b';
+      const subskills = segments
+        .filter(seg => seg.dataset.type === 'subskill' && seg.dataset.heading === headingName)
+        .sort((a, b) => Number(b.dataset.jds || 0) - Number(a.dataset.jds || 0));
+
+      if (!subskills.length) {
+        return `<p class="detail-helper">No subskills available.</p>`;
+      }
+
+      return `<div class="detail-actions">${subskills.map(seg => `
+        <button
+          class="heading-button"
+          type="button"
+          data-subskill-heading="${escapeHTML(seg.dataset.heading)}"
+          data-subskill-link="${escapeHTML(seg.dataset.subskill)}"
+        >
+          <span class="swatch" style="background: ${escapeHTML(color)}"></span>
+          <span class="heading-name">${escapeHTML(seg.dataset.subskill)}</span>
+          <span class="count-badge">${escapeHTML(seg.dataset.jds)} JDs</span>
+        </button>
+      `).join('')}</div>`;
+    }
+
+    function renderHomePanel() {
+      panel.innerHTML = `
+        <div class="detail-kicker">Explore</div>
+        <h2 class="detail-title">Pick a skill family</h2>
+        <div class="detail-meta">Use the colour list or the sunburst slices. Click once to keep a selection open.</div>
+        <div class="detail-section-title">Headings by total demand</div>
+        <div class="detail-actions">${headingList()}</div>
+      `;
+    }
+
+    function updatePanel(el) {
+      const type = el.dataset.type;
+      if (type === 'heading') {
+        panel.innerHTML = `
+          <div class="detail-kicker">Main heading</div>
+          <h2 class="detail-title">${escapeHTML(el.dataset.heading)}</h2>
+          <div class="detail-meta">${escapeHTML(el.dataset.total)} total subskill counts</div>
+          <div class="detail-section-title">Top subskills</div>
+          ${subskillList(el.dataset.heading)}
+        `;
+      } else {
+        const phrases = (el.dataset.memberPhrases || '').split(' | ').filter(Boolean);
+        panel.innerHTML = `
+          <div class="detail-kicker">${escapeHTML(el.dataset.heading)}</div>
+          <h2 class="detail-title">${escapeHTML(el.dataset.subskill)}</h2>
+          <div class="detail-meta">${escapeHTML(el.dataset.jds)} JDs / ${escapeHTML(el.dataset.pct)} of corpus / weighted score ${escapeHTML(el.dataset.weight)}</div>
+          <div class="detail-section-title">Grouped phrases</div>
+          ${renderList(phrases, 'No grouped phrases available.')}
+        `;
+      }
+    }
+
+    function clearPanel() {
+      if (pinned) return;
+      renderHomePanel();
+    }
+
+    function tooltipHTML(el) {
+      if (el.dataset.type === 'heading') {
+        return `
+          <span class="tooltip-title">${escapeHTML(el.dataset.label || el.dataset.heading)}</span>
+          <span class="tooltip-meta">${escapeHTML(el.dataset.total)} total subskill counts</span>
+        `;
+      }
+      return `
+        <span class="tooltip-title">${escapeHTML(el.dataset.label || el.dataset.subskill)}</span>
+        <span class="tooltip-meta">${escapeHTML(el.dataset.jds)} JDs / ${escapeHTML(el.dataset.pct)} of corpus</span>
+        <span class="tooltip-meta">${escapeHTML(el.dataset.heading)}</span>
+      `;
+    }
+
+    function showTooltip(el, event) {
+      tooltip.innerHTML = tooltipHTML(el);
+      tooltip.classList.add('is-visible');
+      moveTooltip(event);
+    }
+
+    function moveTooltip(event) {
+      if (!event || !tooltip.classList.contains('is-visible')) return;
+      const chartRect = chart.getBoundingClientRect();
+      const tooltipRect = tooltip.getBoundingClientRect();
+      const padding = 14;
+      const x = Math.min(
+        event.clientX - chartRect.left + 16,
+        chartRect.width - tooltipRect.width - padding
+      );
+      const y = Math.min(
+        event.clientY - chartRect.top + 16,
+        chartRect.height - tooltipRect.height - padding
+      );
+      tooltip.style.transform = `translate(${Math.max(padding, x)}px, ${Math.max(padding, y)}px)`;
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove('is-visible');
+      tooltip.style.transform = 'translate(-999px, -999px)';
+    }
+
+    function setActive(target) {
+      const activeHeading = target.dataset.heading;
+      segments.forEach(seg => {
+        const isActive = seg === target;
+        const isSameFamily = seg.dataset.heading === activeHeading;
+        seg.classList.toggle('is-active', isActive);
+        seg.classList.toggle('is-dimmed', !isSameFamily);
+        if (isActive) {
+          seg.setAttribute('transform', `translate(${seg.dataset.dx || 0}, ${seg.dataset.dy || 0})`);
+        } else {
+          seg.removeAttribute('transform');
+        }
+      });
+      updatePanel(target);
+    }
+
+    function clearActive() {
+      if (pinned) return;
+      segments.forEach(seg => {
+        seg.classList.remove('is-active', 'is-dimmed');
+        seg.removeAttribute('transform');
+      });
+      clearPanel();
+    }
+
+    segments.forEach(seg => {
+      seg.addEventListener('mouseenter', event => {
+        if (pinned && pinned !== seg) return;
+        setActive(seg);
+        showTooltip(seg, event);
+      });
+      seg.addEventListener('mousemove', event => {
+        if (pinned && pinned !== seg) return;
+        moveTooltip(event);
+      });
+      seg.addEventListener('mouseleave', () => {
+        hideTooltip();
+        if (!pinned) clearActive();
+      });
+      seg.addEventListener('click', event => {
+        if (pinned === seg) {
+          pinned = null;
+          hideTooltip();
+          clearActive();
+          return;
+        }
+        pinned = seg;
+        setActive(seg);
+        showTooltip(seg, event);
+      });
+      seg.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        pinned = pinned === seg ? null : seg;
+        pinned ? setActive(seg) : clearActive();
+      });
+    });
+
+    panel.addEventListener('click', event => {
+      const headingButton = event.target.closest('[data-heading-link]');
+      const subskillButton = event.target.closest('[data-subskill-link]');
+      if (!headingButton && !subskillButton) return;
+
+      const target = headingButton
+        ? headings.find(heading => heading.dataset.heading === headingButton.dataset.headingLink)
+        : segments.find(seg =>
+            seg.dataset.type === 'subskill' &&
+            seg.dataset.heading === subskillButton.dataset.subskillHeading &&
+            seg.dataset.subskill === subskillButton.dataset.subskillLink
+          );
+      if (!target) return;
+      pinned = target;
+      hideTooltip();
+      setActive(target);
+    });
+
+    document.addEventListener('click', event => {
+      if (
+        event.target.closest('.segment') ||
+        event.target.closest('[data-heading-link]') ||
+        event.target.closest('[data-subskill-link]')
+      ) return;
+      pinned = null;
+      hideTooltip();
+      clearActive();
+    });
+
+    renderHomePanel();
+  </script>
+</body>
+</html>
