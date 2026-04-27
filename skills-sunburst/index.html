@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Curated Skills Sunburst v1.2</title>
+  <title>Curated Skills Sunburst v1.3</title>
   <style>
     body {
       margin: 0;
@@ -247,20 +247,20 @@
       <div class="viz-card">
         <div class="viz-header">
           <div>
-            <div class="viz-eyebrow">100 job adverts analysed · Curation v1.2</div>
+            <div class="viz-eyebrow">100 job adverts analysed · Curation v1.3</div>
             <h1 class="viz-title">Curated skills map</h1>
             <p class="viz-subtitle">Inner colour families are skill headings; outer slices are curated subskills sized by JD frequency. This version rolls nested phrase variants into canonical phrase families to reduce double-counting noise.</p>
           </div>
           <div class="viz-chips" aria-label="Interaction hints">
             <span class="chip">Hover to inspect</span>
             <span class="chip">Click to pin</span>
-            <span class="chip">v1.2</span>
+            <span class="chip">v1.3</span>
           </div>
         </div>
         <div class="viz-frame">
           <svg xmlns="http://www.w3.org/2000/svg" width="940" height="940" viewBox="0 0 940 940" role="img" aria-labelledby="title desc">
-<title id='title'>Sunburst of curated skills demand v1.2</title>
-<desc id='desc'>Inner ring shows main skill headings, outer ring shows subskills, sized by JD counts. Curation v1.2.</desc>
+<title id='title'>Sunburst of curated skills demand v1.3</title>
+<desc id='desc'>Inner ring shows main skill headings, outer ring shows subskills, sized by JD counts. Curation v1.3.</desc>
 <rect width='940' height='940' fill='#fbfaf7'/>
 <style>
 
@@ -678,8 +678,8 @@ Weighted score: 8.0</title></path>
         panel.innerHTML = `
           <div class="detail-kicker">${escapeHTML(el.dataset.heading)}</div>
           <h2 class="detail-title">${escapeHTML(el.dataset.subskill)}</h2>
-          <div class="detail-meta">${escapeHTML(el.dataset.jds)} JDs / ${escapeHTML(el.dataset.pct)} of corpus / weighted score ${escapeHTML(el.dataset.weight)}</div>
-          <div class="detail-section-title">Grouped phrases</div>
+          <div class="detail-meta">${escapeHTML(el.dataset.jds)} JDs / ${escapeHTML(el.dataset.pct)} of corpus</div>
+          <div class="detail-section-title">Common phrases</div>
           ${renderList(phrases, 'No grouped phrases available.')}
         `;
       }
