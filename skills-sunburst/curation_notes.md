@@ -10,3 +10,4 @@ Current conventions:
 
 Counts still use the same de-duplicated 100-job-advert corpus baseline.
 - SME collaboration phrases are kept inside the SME collaboration subskill; subject matter expertise is treated as performance consulting/domain expertise.
+- Heading percentages use unique job adverts, not summed subskill percentages.
