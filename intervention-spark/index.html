@@ -50,17 +50,8 @@
 
     .masthead {
       display: grid;
-      gap: 12px;
+      gap: 10px;
       margin-bottom: 18px;
-    }
-
-    .kicker {
-      margin: 0;
-      color: var(--nazare-magenta);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
     }
 
     h1 {
@@ -92,31 +83,41 @@
     .tabs {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 4px;
-      padding: 6px;
+      gap: 10px;
+      padding: 12px;
       border-bottom: 1px solid var(--nazare-line);
-      background: rgba(255, 255, 255, 0.84);
+      background: rgba(255, 255, 255, 0.7);
     }
 
     .tab {
-      min-height: 54px;
-      border-radius: 6px;
+      min-height: 72px;
+      border: 2px solid rgba(42, 3, 76, 0.16);
+      border-radius: 8px;
       color: var(--nazare-plum);
-      background: transparent;
-      font-size: 16px;
+      background: #ffffff;
+      box-shadow: 0 8px 16px rgba(42, 3, 76, 0.07);
+      font-size: 18px;
       font-weight: 800;
       cursor: pointer;
-      transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+      transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, color 140ms ease, transform 140ms ease;
     }
 
     .tab:hover {
-      background: rgba(42, 3, 76, 0.06);
-      transform: translateY(-1px);
+      border-color: rgba(42, 3, 76, 0.28);
+      box-shadow: 0 12px 22px rgba(42, 3, 76, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .tab:focus-visible {
+      outline: 3px solid rgba(65, 188, 229, 0.7);
+      outline-offset: 3px;
     }
 
     .tab[aria-pressed="true"] {
+      border-color: transparent;
       color: #ffffff;
       background: var(--tab-accent, var(--nazare-purple));
+      box-shadow: 0 14px 28px rgba(42, 3, 76, 0.18);
     }
 
     .tab-capability {
@@ -157,6 +158,10 @@
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+    }
+
+    .pill[hidden] {
+      display: none;
     }
 
     .counter {
@@ -302,9 +307,8 @@
 <body>
   <main class="shell">
     <header class="masthead">
-      <p class="kicker">Stage 3 intervention cards</p>
-      <h1>Is the barrier...</h1>
-      <p class="lede">Choose the COM-B barrier and spark one intervention idea for the canvas.</p>
+      <h1>Intervention spark</h1>
+      <p class="lede">(Tap a category multiple times for more suggestions.)</p>
     </header>
 
     <section class="tool" aria-label="COM-B intervention spark">
@@ -316,7 +320,7 @@
 
       <div class="stage">
         <div class="state-row">
-          <span class="pill" id="currentCategory">Select a barrier</span>
+          <span class="pill" id="currentCategory" hidden></span>
           <span class="counter" id="categoryCount">24 intervention cards</span>
         </div>
 
@@ -537,6 +541,7 @@
 
       resultEl.dataset.category = categoryKey;
       currentCategoryEl.textContent = `${category.label} barrier`;
+      currentCategoryEl.hidden = false;
       categoryCountEl.textContent = `${category.cards.length} ${category.label.toLowerCase()} cards`;
       cardCategoryEl.textContent = category.label;
       cardTitleEl.textContent = card.title;
