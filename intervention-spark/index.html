@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nazaré intervention spark</title>
+  <style>
+    :root {
+      --nazare-plum: #2a034c;
+      --nazare-purple: #451284;
+      --nazare-magenta: #b502b1;
+      --nazare-teal: #00ca9f;
+      --nazare-blue: #41bce5;
+      --nazare-paper: #fffdfb;
+      --nazare-ink: #26223b;
+      --nazare-muted: #686174;
+      --nazare-line: rgba(42, 3, 76, 0.14);
+      --surface: rgba(255, 255, 255, 0.92);
+      --accent: var(--nazare-purple);
+      --accent-soft: rgba(69, 18, 132, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Montserrat", "Aptos", "Segoe UI", sans-serif;
+      color: var(--nazare-ink);
+      background:
+        linear-gradient(90deg, rgba(42, 3, 76, 0.05) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(42, 3, 76, 0.05) 1px, transparent 1px),
+        linear-gradient(180deg, #fffdfb 0%, #eef7fb 100%);
+      background-size: 34px 34px, 34px 34px, auto;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      font: inherit;
+    }
+
+    .shell {
+      width: min(100% - 32px, 920px);
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    .masthead {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      margin: 0;
+      color: var(--nazare-magenta);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      color: var(--nazare-plum);
+      font-size: clamp(34px, 7vw, 64px);
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 0.96;
+    }
+
+    .lede {
+      max-width: 680px;
+      margin: 0;
+      color: var(--nazare-muted);
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .tool {
+      border: 1px solid var(--nazare-line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 18px 42px rgba(42, 3, 76, 0.08);
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      padding: 6px;
+      border-bottom: 1px solid var(--nazare-line);
+      background: rgba(255, 255, 255, 0.84);
+    }
+
+    .tab {
+      min-height: 54px;
+      border-radius: 6px;
+      color: var(--nazare-plum);
+      background: transparent;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+    }
+
+    .tab:hover {
+      background: rgba(42, 3, 76, 0.06);
+      transform: translateY(-1px);
+    }
+
+    .tab[aria-pressed="true"] {
+      color: #ffffff;
+      background: var(--tab-accent, var(--nazare-purple));
+    }
+
+    .tab-capability {
+      --tab-accent: #008e73;
+    }
+
+    .tab-opportunity {
+      --tab-accent: #147ea0;
+    }
+
+    .tab-motivation {
+      --tab-accent: var(--nazare-purple);
+    }
+
+    .stage {
+      display: grid;
+      gap: 18px;
+      padding: 22px;
+    }
+
+    .state-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .counter {
+      color: var(--nazare-muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .result {
+      display: grid;
+      gap: 16px;
+      min-height: 340px;
+      padding: 22px;
+      border: 1px solid rgba(42, 3, 76, 0.1);
+      border-left: 8px solid var(--accent);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, var(--accent-soft), rgba(255, 255, 255, 0) 42%),
+        #ffffff;
+    }
+
+    .result[data-category="capability"] {
+      --accent: #008e73;
+      --accent-soft: rgba(0, 202, 159, 0.12);
+    }
+
+    .result[data-category="opportunity"] {
+      --accent: #147ea0;
+      --accent-soft: rgba(65, 188, 229, 0.14);
+    }
+
+    .result[data-category="motivation"] {
+      --accent: var(--nazare-purple);
+      --accent-soft: rgba(69, 18, 132, 0.1);
+    }
+
+    .empty {
+      align-self: center;
+      max-width: 520px;
+      margin: 0;
+      color: var(--nazare-muted);
+      font-size: 20px;
+      line-height: 1.45;
+    }
+
+    .intervention {
+      display: grid;
+      gap: 16px;
+    }
+
+    .intervention[hidden],
+    .empty[hidden] {
+      display: none;
+    }
+
+    .card-head {
+      display: grid;
+      gap: 8px;
+    }
+
+    .category {
+      margin: 0;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--nazare-plum);
+      font-size: clamp(30px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 1;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .section {
+      min-height: 140px;
+      padding: 16px;
+      border: 1px solid rgba(42, 3, 76, 0.1);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .label {
+      margin: 0;
+      color: var(--nazare-plum);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .copy {
+      margin: 8px 0 0;
+      color: var(--nazare-ink);
+      font-size: 16px;
+      line-height: 1.44;
+    }
+
+    .nudge {
+      margin: 0;
+      padding-top: 2px;
+      color: var(--nazare-muted);
+      font-size: 15px;
+      line-height: 1.42;
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        width: min(100% - 20px, 920px);
+        padding-top: 18px;
+      }
+
+      .tabs,
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stage {
+        padding: 16px;
+      }
+
+      .result {
+        min-height: 420px;
+        padding: 18px;
+      }
+
+      .section {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <p class="kicker">Stage 3 intervention cards</p>
+      <h1>Is the barrier...</h1>
+      <p class="lede">Choose the COM-B barrier and spark one intervention idea for the canvas.</p>
+    </header>
+
+    <section class="tool" aria-label="COM-B intervention spark">
+      <div class="tabs" role="group" aria-label="Barrier type">
+        <button class="tab tab-capability" type="button" data-category="capability" aria-pressed="false">Capability</button>
+        <button class="tab tab-opportunity" type="button" data-category="opportunity" aria-pressed="false">Opportunity</button>
+        <button class="tab tab-motivation" type="button" data-category="motivation" aria-pressed="false">Motivation</button>
+      </div>
+
+      <div class="stage">
+        <div class="state-row">
+          <span class="pill" id="currentCategory">Select a barrier</span>
+          <span class="counter" id="categoryCount">24 intervention cards</span>
+        </div>
+
+        <article class="result" id="result" aria-live="polite">
+          <p class="empty" id="emptyState">Pick the barrier that feels most true, then use the idea that appears as a starting point.</p>
+
+          <div class="intervention" id="intervention" hidden>
+            <div class="card-head">
+              <p class="category" id="cardCategory"></p>
+              <h2 id="cardTitle"></h2>
+            </div>
+
+            <div class="content-grid">
+              <section class="section">
+                <p class="label">Intervention idea</p>
+                <p class="copy" id="cardIdea"></p>
+              </section>
+
+              <section class="section">
+                <p class="label">Why it works</p>
+                <p class="copy" id="cardWhy"></p>
+              </section>
+            </div>
+
+            <p class="nudge" id="cardNudge"></p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const categories = {
+      capability: {
+        label: "Capability",
+        nudge: "Use this when people may lack the knowledge, skill, confidence, or practical know-how to perform the behaviour.",
+        cards: [
+          {
+            title: "Support practice",
+            idea: "What if learners regularly practiced the behaviour within realistic scenarios (e.g., role plays or simulations)?",
+            why: "Regular practice and rehearsal play an important role in building habit and skill. They strengthen neural pathways in the brain, allowing behaviours to be performed more automatically and with less conscious effort."
+          },
+          {
+            title: "Provide practical tools",
+            idea: "What if learners were provided with practical tools (e.g., frameworks, checklists, prompts) to help them to consistently perform the behaviour in relevant tasks?",
+            why: "Practical tools reduce cognitive load by minimising the need to hold information in memory. They provide clear structure and timely prompts, making it easier to apply the behaviour consistently."
+          },
+          {
+            title: "Provide performance feedback",
+            idea: "What if learners received feedback on how effectively they performed the behaviour in specific tasks or scenarios?",
+            why: "Clear feedback helps people to understand what they are doing well and what to improve, helping individuals to refine and strengthen behaviours."
+          },
+          {
+            title: "Provide social support",
+            idea: "What if learners could ask questions, discuss challenges and receive advice from others, such as their peers or manager?",
+            why: "Practical advice and encouragement from others can support new behaviours, particularly if individuals are uncertain or lacking in confidence."
+          },
+          {
+            title: "Embed prompts in tools",
+            idea: "What if prompts were added to existing tools, systems or templates to help remind and guide learners to carry out the behaviour in relevant tasks?",
+            why: "Prompts and cues at the right moment can help trigger desired behaviours and reduce reliance on memory. They are most effective when they occur close to the time and place of the desired behaviour."
+          },
+          {
+            title: "Set graded tasks",
+            idea: "What if learners were encouraged to practice the behaviour in simple, easy-to-perform tasks first, and then in increasingly complex, but achievable tasks?",
+            why: "Setting easy-to-perform tasks which gradually increase in difficulty can help individuals build competence and confidence in performing a behaviour."
+          },
+          {
+            title: "Provide examples",
+            idea: "What if learners were provided with examples of what good looks like through showing how others perform the behaviour in relevant tasks?",
+            why: "Observing how similar others behave in relevant situations, directly or indirectly (e.g., via film or pictures), can help individuals understand what to do and how to do it, while also building confidence in their own ability."
+          },
+          {
+            title: "Provide instruction",
+            idea: "What if learners were provided with clear, step-by-step instructions on how to carry out the behaviour?",
+            why: "Clear, simple guidance removes guesswork, helping people know exactly what to do and how to get started."
+          }
+        ]
+      },
+      opportunity: {
+        label: "Opportunity",
+        nudge: "Use this when the environment, workflow, resources, time, or social context may be getting in the way.",
+        cards: [
+          {
+            title: "Introduce new rituals",
+            idea: "What if learners built simple rituals (repeatable actions) into their daily or weekly routines, which help them to perform the behaviour at relevant moments (e.g., before a meeting)?",
+            why: "Creating the time and space for behaviour is as important as building motivation. Embedding behaviours into existing routines can help them become easier to adopt and sustain over time."
+          },
+          {
+            title: "Embed prompts in tools",
+            idea: "What if prompts were added to existing tools, systems or templates to remind and help guide learners to perform the behaviour in relevant tasks?",
+            why: "Prompts and cues at the right moment can help trigger the desired behaviour and reduce reliance on memory. They are most effective when they occur close to the time and place of the desired behaviour."
+          },
+          {
+            title: "Remove prompts or cues",
+            idea: "What if systems, tools, or templates that disrupt or prevent learners from performing the behaviour were changed or removed?",
+            why: "Reducing exposure to environmental cues which trigger competing behaviours can help prevent people from defaulting to old ways of working, making it easier to adopt new behaviours."
+          },
+          {
+            title: "Add friction points",
+            idea: "What if small, intentional steps were added to existing workflows to interrupt undesirable habits and prompt learners to perform the behaviour?",
+            why: "Introducing moments of friction can disrupt automatic habits and prompt more deliberate thinking, making it easier for individuals to pause, reflect and choose a different behaviour."
+          },
+          {
+            title: "Adjust team practices",
+            idea: "What if the way teams approach key tasks, such as how they collaborate, contribute, and make decisions, was redesigned to create the conditions for learners to perform the behaviour?",
+            why: "Team dynamics and workflows can help or hinder behaviour. How work is structured and how team members interact can shape how able and willing individuals feel to adopt new behaviours."
+          }
+        ]
+      },
+      motivation: {
+        label: "Motivation",
+        nudge: "Use this when people may not yet value, prioritise, intend, or feel motivated to perform the behaviour.",
+        cards: [
+          {
+            title: "Use credible endorsements",
+            idea: "What if respected others, such as leaders or experts, endorsed the behaviour in real work contexts?",
+            why: "Using endorsements from individuals seen to be credible experts in their field can influence others' attitudes, beliefs and behaviour."
+          },
+          {
+            title: "Share peer norms",
+            idea: "What if learners could see that their peers value and actively perform the behaviour in their day-to-day work?",
+            why: "People are influenced by what others like them do and value. When a behaviour is seen as the norm within a group, individuals are more likely to adopt it to align with group expectations."
+          },
+          {
+            title: "Encourage goal setting",
+            idea: "What if learners set specific goals to perform the behaviour in certain tasks?",
+            why: "Goal setting helps individuals form intentions, which are a strong predictor of behaviour. Receiving feedback on goal progress and sharing goals with others can further amplify their effectiveness."
+          },
+          {
+            title: "Encourage action planning",
+            idea: "What if learners were prompted to create if-then plans, detailing what they will do in specific scenarios?",
+            why: "Forming if-then plans, also known as implementation intentions, helps to translate intention into action. They support initiation, reduce deliberation and help individuals to maintain focus in the event of distractions."
+          },
+          {
+            title: "Highlight top performers",
+            idea: "What if learners were shown how top performers in similar roles perform the behaviour in real work contexts?",
+            why: "Individuals tend to evaluate themselves by comparing their traits, abilities, and opinions to those of others. Social comparisons can influence motivation and behaviour, especially when objective standards are missing."
+          },
+          {
+            title: "Show future consequences",
+            idea: "What if stories and examples were used to bring to life the future impact of performing, versus not performing, the behaviour?",
+            why: "A person's beliefs about the consequences of their behaviour can shape their motivation to act. Making the potential gains and losses of a behaviour more vivid and tangible can therefore help increase motivation."
+          },
+          {
+            title: "Prompt future reflection",
+            idea: "What if learners were prompted to reflect on the future outcomes of performing, versus not performing, the behaviour in relevant tasks and scenarios?",
+            why: "A person's beliefs about the consequences of their behaviour can shape their motivation to act. Helping individuals to imagine the potential gains and losses of a behaviour can therefore help stimulate motivation."
+          },
+          {
+            title: "Use positive reinforcement",
+            idea: "What if the behaviour was recognised or rewarded?",
+            why: "Behaviours which are positively reinforced are more likely to be repeated. Both social (e.g., praise) and material (e.g., financial) rewards can increase employee motivation and performance."
+          },
+          {
+            title: "Build confidence through encouragement",
+            idea: "What if respected others (e.g., managers, peers) actively encouraged learners, helping to build their belief that they have the ability to perform the behaviour successfully?",
+            why: "Verbal encouragement from others, especially those who are trusted and respected, can help build an individual's belief in their ability to succeed, increasing the likelihood they will attempt and persist with the behaviour."
+          },
+          {
+            title: "Build confidence through reflection",
+            idea: "What if learners were reminded, or prompted to think about when they successfully performed similar behaviours or when they overcame similar challenges in the past?",
+            why: "Focussing on past success and experiences of mastery can help strengthen self-belief in one's ability to succeed in similar scenarios or tasks."
+          },
+          {
+            title: "Encourage experimentation",
+            idea: "What if learners identified opportunities to test the behaviour across different tasks or scenarios and reflect on the outcomes?",
+            why: "Experimentation allows individuals to observe the consequences of their behaviour first-hand and helps build supportive attitudes and beliefs towards the behaviour."
+          }
+        ]
+      }
+    };
+
+    const buttons = Array.from(document.querySelectorAll(".tab"));
+    const currentCategoryEl = document.getElementById("currentCategory");
+    const categoryCountEl = document.getElementById("categoryCount");
+    const resultEl = document.getElementById("result");
+    const emptyStateEl = document.getElementById("emptyState");
+    const interventionEl = document.getElementById("intervention");
+    const cardCategoryEl = document.getElementById("cardCategory");
+    const cardTitleEl = document.getElementById("cardTitle");
+    const cardIdeaEl = document.getElementById("cardIdea");
+    const cardWhyEl = document.getElementById("cardWhy");
+    const cardNudgeEl = document.getElementById("cardNudge");
+
+    const queues = {};
+    const lastCard = {};
+
+    function shuffleCards(categoryKey) {
+      const pool = [...categories[categoryKey].cards];
+
+      for (let i = pool.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      if (pool.length > 1 && lastCard[categoryKey] && pool[0].title === lastCard[categoryKey].title) {
+        [pool[0], pool[1]] = [pool[1], pool[0]];
+      }
+
+      return pool;
+    }
+
+    function drawCard(categoryKey) {
+      const category = categories[categoryKey];
+
+      if (!queues[categoryKey] || queues[categoryKey].length === 0) {
+        queues[categoryKey] = shuffleCards(categoryKey);
+      }
+
+      const card = queues[categoryKey].shift();
+      lastCard[categoryKey] = card;
+
+      buttons.forEach((button) => {
+        const isActive = button.dataset.category === categoryKey;
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      resultEl.dataset.category = categoryKey;
+      currentCategoryEl.textContent = `${category.label} barrier`;
+      categoryCountEl.textContent = `${category.cards.length} ${category.label.toLowerCase()} cards`;
+      cardCategoryEl.textContent = category.label;
+      cardTitleEl.textContent = card.title;
+      cardIdeaEl.textContent = card.idea;
+      cardWhyEl.textContent = card.why;
+      cardNudgeEl.textContent = category.nudge;
+      emptyStateEl.hidden = true;
+      interventionEl.hidden = false;
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        drawCard(button.dataset.category);
+      });
+    });
+  </script>
+</body>
+</html>

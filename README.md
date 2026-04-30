@@ -8,6 +8,8 @@ Public prototypes and experiments for GitHub Pages.
   - Landing page for the site
 - `format-spark/index.html`
   - Random format idea generator
+- `intervention-spark/index.html`
+  - COM-B intervention idea generator for Stage 3 barriers
 
 ## Publish with GitHub Pages
 
@@ -24,6 +26,8 @@ The site URLs should then be:
   - `https://wilnazare.github.io/nazaretests/`
 - Format spark:
   - `https://wilnazare.github.io/nazaretests/format-spark/`
+- Intervention spark:
+  - `https://wilnazare.github.io/nazaretests/intervention-spark/`
 
 ## Adding more experiments later
 
