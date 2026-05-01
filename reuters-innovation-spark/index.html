@@ -200,12 +200,11 @@
     <section class="hero">
       <p class="kicker">Nazaré hackathon</p>
       <h1>Innovation spark</h1>
-      <p class="lede">Draw from the Reuters innovation cards when the group needs a sharper “What if…” prompt. Pull one card, create a wider spread, or pair the current draw with another provocation.</p>
+      <p class="lede">Need some inspiration on how to overcome your constraints? Tap below. Tap again for more suggestions.</p>
 
       <div class="controls">
-        <button class="btn-primary" id="oneCardBtn" type="button">Give me one card</button>
-        <button class="btn-secondary" id="threeCardsBtn" type="button">Give me three cards</button>
-        <button class="btn-secondary" id="pairBtn" type="button">Pair with another card</button>
+        <button class="btn-primary" id="inspireBtn" type="button">Inspire me</button>
+        <button class="btn-secondary" id="twistBtn" type="button">Add a twist</button>
       </div>
 
       <div class="results" id="results"></div>
@@ -253,24 +252,13 @@
     ];
 
     const resultsEl = document.getElementById("results");
-    const oneCardBtn = document.getElementById("oneCardBtn");
-    const threeCardsBtn = document.getElementById("threeCardsBtn");
-    const pairBtn = document.getElementById("pairBtn");
+    const inspireBtn = document.getElementById("inspireBtn");
+    const twistBtn = document.getElementById("twistBtn");
 
     let currentResults = [];
 
     function sample(array) {
       return array[Math.floor(Math.random() * array.length)];
-    }
-
-    function sampleMany(array, count) {
-      const pool = [...array];
-      const picked = [];
-      while (pool.length && picked.length < count) {
-        const index = Math.floor(Math.random() * pool.length);
-        picked.push(pool.splice(index, 1)[0]);
-      }
-      return picked;
     }
 
     function sampleExcept(array, excludedPrompts) {
@@ -281,10 +269,10 @@
     function renderCards(cards) {
       currentResults = cards;
       resultsEl.innerHTML = cards.map((card) => {
-        if (card.type === "pair") {
+        if (card.type === "twist") {
           return `
             <article class="card card--twist">
-              <span class="label">Paired card</span>
+              <span class="label">Twist</span>
               <h2 class="title">${card.title}</h2>
               <p class="category">${card.category}</p>
               <p class="body">${card.prompt}</p>
@@ -294,7 +282,7 @@
 
         return `
           <article class="card card--idea">
-            <span class="label">What if card</span>
+            <span class="label">Inspiration</span>
             <h2 class="title">${card.title}</h2>
             <p class="category">${card.category}</p>
             <p class="body">${card.prompt}</p>
@@ -303,31 +291,26 @@
       }).join("");
     }
 
-    function setOneCard() {
+    function inspire() {
       renderCards([sample(ideas)]);
     }
 
-    function setThreeCards() {
-      renderCards(sampleMany(ideas, 3));
-    }
-
-    function addPair() {
-      const baseCards = currentResults.filter((item) => item.type !== "pair");
+    function addTwist() {
+      const baseCards = currentResults.filter((item) => item.type !== "twist");
       const visibleCards = baseCards.length ? baseCards : [sample(ideas)];
       const excludedPrompts = new Set(visibleCards.map((item) => item.prompt));
-      const pairCard = {
+      const twistCard = {
         ...sampleExcept(ideas, excludedPrompts),
-        type: "pair"
+        type: "twist"
       };
 
-      renderCards([...visibleCards, pairCard]);
+      renderCards([...visibleCards, twistCard]);
     }
 
-    oneCardBtn.addEventListener("click", setOneCard);
-    threeCardsBtn.addEventListener("click", setThreeCards);
-    pairBtn.addEventListener("click", addPair);
+    inspireBtn.addEventListener("click", inspire);
+    twistBtn.addEventListener("click", addTwist);
 
-    setOneCard();
+    inspire();
   </script>
 </body>
 </html>

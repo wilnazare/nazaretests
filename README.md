@@ -11,7 +11,7 @@ Public prototypes and experiments for GitHub Pages.
 - `intervention-spark/index.html`
   - COM-B intervention idea generator for Stage 3 barriers
 - `reuters-innovation-spark/index.html`
-  - Reuters innovation card randomiser using the extracted “What if…” prompts
+  - Innovation card randomiser using the extracted “What if…” prompts
 
 ## Publish with GitHub Pages
 
