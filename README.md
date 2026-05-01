@@ -10,6 +10,8 @@ Public prototypes and experiments for GitHub Pages.
   - Random format idea generator
 - `intervention-spark/index.html`
   - COM-B intervention idea generator for Stage 3 barriers
+- `reuters-innovation-spark/index.html`
+  - Reuters innovation card randomiser using the extracted “What if…” prompts
 
 ## Publish with GitHub Pages
 
@@ -28,6 +30,8 @@ The site URLs should then be:
   - `https://wilnazare.github.io/nazaretests/format-spark/`
 - Intervention spark:
   - `https://wilnazare.github.io/nazaretests/intervention-spark/`
+- Innovation spark:
+  - `https://wilnazare.github.io/nazaretests/reuters-innovation-spark/`
 
 ## Adding more experiments later
 
