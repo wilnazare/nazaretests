@@ -12,6 +12,8 @@ Public prototypes and experiments for GitHub Pages.
   - COM-B intervention idea generator for Stage 3 barriers
 - `reuters-innovation-spark/index.html`
   - Innovation card randomiser using the extracted “What if…” prompts
+- `dream-team-picker/index.html`
+  - Field team selection game with scenario scoring
 
 ## Publish with GitHub Pages
 
@@ -32,6 +34,8 @@ The site URLs should then be:
   - `https://wilnazare.github.io/nazaretests/intervention-spark/`
 - Innovation spark:
   - `https://wilnazare.github.io/nazaretests/reuters-innovation-spark/`
+- Dream Team Picker:
+  - `https://wilnazare.github.io/nazaretests/dream-team-picker/`
 
 ## Adding more experiments later
 

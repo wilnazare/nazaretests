@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dream Team Picker</title>
+  <style>
+    :root {
+      --plum:#2a034c;
+      --purple:#451284;
+      --magenta:#b502b1;
+      --teal:#00ca9f;
+      --blue:#41bce5;
+      --ink:#26223b;
+      --muted:#66667a;
+      --paper:#fffdfb;
+      --white:#ffffff;
+      --soft:#f5f1fa;
+      --line:#e8dff1;
+      --danger:#d9436f;
+      --amber:#f4a62a;
+      --shadow:0 14px 35px rgba(42,3,76,.12);
+      --radius:22px;
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      font-family:"Montserrat","Aptos","Segoe UI",Arial,sans-serif;
+      background:
+        radial-gradient(circle at top left,rgba(181,2,177,.14),transparent 32%),
+        radial-gradient(circle at top right,rgba(65,188,229,.18),transparent 28%),
+        var(--paper);
+      color:var(--ink);
+      min-height:100vh;
+    }
+
+    header, main { max-width:1180px; margin:0 auto; padding:28px 24px 12px; }
+    main { padding-top:12px; padding-bottom:48px; }
+
+    h1 { margin:0; color:var(--plum); font-size:clamp(2rem,5vw,4rem); line-height:.95; letter-spacing:-.06em; }
+    h2 { margin:0; color:var(--plum); font-size:clamp(1.45rem,3vw,2.1rem); letter-spacing:-.04em; }
+    h3 { margin:0 0 10px; color:var(--plum); font-size:1.12rem; }
+    p { line-height:1.55; }
+
+    .subtitle { max-width:850px; color:var(--muted); font-size:1.03rem; margin:16px 0 0; }
+    .brand-pill { display:inline-flex; align-items:center; gap:8px; padding:8px 13px; border-radius:999px; background:rgba(69,18,132,.08); color:var(--purple); font-weight:900; font-size:.82rem; margin-bottom:14px; }
+    .brand-dot { width:10px; height:10px; background:linear-gradient(135deg,var(--magenta),var(--teal)); border-radius:50%; }
+
+    .top-bar { position:sticky; top:0; z-index:10; display:grid; grid-template-columns:1fr auto auto; gap:14px; align-items:center; margin-bottom:22px; padding:14px; background:rgba(255,253,251,.93); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(14px); }
+    .budget-box { display:flex; flex-wrap:wrap; gap:12px; align-items:stretch; }
+    .metric { min-width:118px; padding:10px 13px; background:white; border:1px solid var(--line); border-radius:16px; }
+    .metric-label { display:block; color:var(--muted); font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
+    .metric-value { display:block; margin-top:2px; color:var(--plum); font-size:1.15rem; font-weight:950; }
+    .budget-input { width:94px; margin-top:4px; padding:7px 8px; border-radius:10px; border:1px solid var(--line); font-family:inherit; font-weight:900; color:var(--plum); background:var(--paper); }
+    .preset-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+    .budget-progress { width:min(430px,100%); height:12px; margin-top:8px; background:#eee6f4; border-radius:999px; overflow:hidden; }
+    .budget-fill { height:100%; width:0; background:linear-gradient(90deg,var(--teal),var(--blue),var(--magenta)); border-radius:inherit; transition:.25s ease; }
+
+    button { border:0; border-radius:999px; font-family:inherit; font-weight:950; cursor:pointer; transition:.15s ease; }
+    button:hover { transform:translateY(-1px); }
+    button:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+    .primary-btn { padding:14px 22px; background:linear-gradient(135deg,var(--purple),var(--magenta)); color:white; box-shadow:0 10px 20px rgba(181,2,177,.2); }
+    .secondary-btn { padding:13px 18px; background:white; color:var(--purple); border:1px solid var(--line); }
+    .ghost-btn { padding:7px 10px; background:rgba(69,18,132,.08); color:var(--purple); font-size:.76rem; border:1px solid rgba(69,18,132,.08); }
+
+    .section { display:none; animation:fadeIn .25s ease; }
+    .section.active { display:block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .section-heading { display:flex; justify-content:space-between; gap:16px; align-items:flex-end; margin:18px 0; }
+    .helper { color:var(--muted); margin:8px 0 0; max-width:780px; }
+    .cards-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .card { background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:var(--radius); padding:18px; box-shadow:0 8px 24px rgba(42,3,76,.08); }
+
+    .member-card { position:relative; min-height:280px; display:flex; flex-direction:column; gap:12px; cursor:pointer; transition:.15s ease; }
+    .member-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+    .member-card.selected { border:2px solid var(--teal); background:linear-gradient(180deg,rgba(0,202,159,.08),white); }
+    .member-card.unavailable { opacity:.46; }
+    .member-top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    .avatar { width:46px; height:46px; border-radius:15px; display:grid; place-items:center; color:white; background:linear-gradient(135deg,var(--purple),var(--magenta)); font-weight:950; flex:0 0 auto; }
+    .member-title { margin:0; color:var(--plum); font-size:1.05rem; line-height:1.2; }
+    .cost { background:var(--plum); color:white; padding:7px 10px; border-radius:999px; font-size:.8rem; font-weight:950; white-space:nowrap; }
+    .description { color:var(--muted); font-size:.93rem; margin:0; }
+    .unlock-note { padding:10px 11px; border-radius:14px; background:rgba(181,2,177,.08); border:1px solid rgba(181,2,177,.14); color:var(--magenta); font-size:.86rem; font-weight:850; line-height:1.35; }
+    .unlocked-note { padding:10px 11px; border-radius:14px; background:rgba(0,202,159,.11); border:1px solid rgba(0,202,159,.22); color:#116451; font-size:.86rem; font-weight:850; line-height:1.35; }
+    .tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:auto; }
+    .tag { padding:6px 8px; border-radius:999px; color:var(--purple); background:rgba(69,18,132,.08); font-size:.74rem; font-weight:850; }
+    .tag.unlock { background:rgba(0,202,159,.12); color:#116451; }
+    .check { position:absolute; right:15px; bottom:15px; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; border:2px solid var(--line); color:transparent; font-weight:950; }
+    .selected .check { background:var(--teal); border-color:var(--teal); color:var(--plum); }
+
+    .scenario-shell { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(280px,.85fr); gap:18px; align-items:start; }
+    .scenario-number { display:inline-flex; padding:8px 12px; border-radius:999px; background:rgba(65,188,229,.16); color:var(--purple); font-weight:950; font-size:.82rem; margin-bottom:14px; }
+    .scenario-brief { margin-top:6px; padding:24px; border-radius:22px; background:linear-gradient(135deg,rgba(69,18,132,.08),rgba(65,188,229,.12)),white; border:1px solid var(--line); }
+    .scenario-kicker { color:var(--magenta); font-size:.78rem; font-weight:950; text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+    .scenario-text-large { margin:0; color:var(--plum); font-size:clamp(1.35rem,3vw,2rem); line-height:1.32; font-weight:850; letter-spacing:-.035em; }
+    .question-heading { margin-top:24px; padding-top:2px; color:var(--plum); font-size:1.25rem; }
+    .option-grid { display:grid; gap:12px; margin-top:18px; }
+    .capability-option { text-align:left; border-radius:18px; padding:16px; background:white; color:var(--ink); border:1px solid var(--line); box-shadow:0 6px 18px rgba(42,3,76,.06); cursor:pointer; }
+    .capability-option:hover { transform:translateY(-1px); border-color:rgba(69,18,132,.25); }
+    .capability-option.selected { border:2px solid var(--teal); background:linear-gradient(180deg,rgba(0,202,159,.08),white); }
+    .option-title { display:block; color:var(--plum); font-weight:950; font-size:1rem; margin-bottom:4px; }
+    .option-desc { display:block; color:var(--muted); font-weight:500; line-height:1.45; font-size:.94rem; }
+
+    .score-reveal { display:none; margin-top:20px; padding:18px; border-radius:18px; background:var(--soft); border:1px solid var(--line); }
+    .score-reveal.visible { display:block; }
+    .score-big { margin:0; color:var(--plum); font-size:2.4rem; font-weight:950; letter-spacing:-.06em; }
+    .score-breakdown { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0; }
+    .score-tile { padding:12px; border-radius:14px; background:white; border:1px solid var(--line); }
+    .score-tile span { display:block; color:var(--muted); font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+    .score-tile strong { display:block; color:var(--plum); font-size:1.2rem; margin-top:2px; }
+    .consequence { margin-top:12px; padding:13px; border-radius:14px; background:rgba(217,67,111,.09); border:1px solid rgba(217,67,111,.25); color:#8a1640; font-weight:800; }
+    .good { background:rgba(0,202,159,.11); border-color:rgba(0,202,159,.25); color:#116451; }
+    .warning { background:rgba(244,166,42,.14); border-color:rgba(244,166,42,.35); color:#6f4500; }
+    .mini-list { list-style:none; padding:0; margin:0; display:grid; gap:9px; }
+    .mini-list li { padding:10px 12px; border-radius:14px; background:white; border:1px solid var(--line); color:var(--ink); font-size:.92rem; }
+    .selected-team-chip { display:inline-flex; padding:7px 9px; border-radius:999px; background:rgba(0,202,159,.12); color:var(--plum); font-weight:850; margin:4px 4px 0 0; font-size:.8rem; }
+
+    .result-hero { margin-bottom:18px; padding:28px; border-radius:30px; color:white; background:linear-gradient(135deg,var(--plum),var(--purple)); box-shadow:var(--shadow); }
+    .result-hero h2 { color:white; }
+    .final-score { margin:18px 0 6px; font-size:clamp(3rem,9vw,6.5rem); font-weight:950; letter-spacing:-.08em; line-height:1; }
+    .result-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .scenario-result { display:flex; justify-content:space-between; gap:14px; padding:13px 0; border-bottom:1px solid var(--line); }
+    .scenario-result:last-child { border-bottom:0; }
+    .score-pill { flex:0 0 auto; padding:8px 10px; border-radius:999px; background:rgba(65,188,229,.16); color:var(--plum); font-weight:950; height:max-content; }
+    .toast { position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px); max-width:calc(100vw - 32px); padding:12px 16px; border-radius:999px; background:var(--plum); color:white; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.2s ease; z-index:99; font-weight:850; text-align:center; }
+    .toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    @media (max-width:920px) { .cards-grid,.result-grid,.scenario-shell { grid-template-columns:1fr; } .top-bar { grid-template-columns:1fr; position:static; } .metric { flex:1 1 130px; } .score-breakdown { grid-template-columns:1fr; } }
+    @media (max-width:560px) { header, main { padding-left:16px; padding-right:16px; } .section-heading { display:block; } .primary-btn,.secondary-btn { width:100%; } .top-bar,.card,.result-hero { border-radius:20px; } .scenario-brief { padding:18px; } }
+    @media print { header,.top-bar,.no-print,#teamSection,#scenarioSection { display:none!important; } body { background:white; } main { max-width:100%; padding:0; } #resultsSection { display:block!important; } .result-hero { background:white; color:var(--ink); box-shadow:none; border:1px solid #ddd; } .result-hero h2 { color:var(--plum); } .card { box-shadow:none; break-inside:avoid; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-pill"><span class="brand-dot"></span>Nazaré prototype</div>
+    <h1>Dream Team Picker</h1>
+    <p class="subtitle">Build a commercial life sciences field team, then play through common field situations by choosing your first move. Junior reps are cheap, but they only unlock stronger execution capability when paired with a Field Coach.</p>
+  </header>
+
+  <main>
+    <div class="top-bar">
+      <div>
+        <div class="budget-box">
+          <div class="metric">
+            <span class="metric-label">Set budget</span>
+            <input id="budgetInput" class="budget-input" type="number" min="30" max="160" step="5" value="100" />
+            <div class="preset-row">
+              <button class="ghost-btn" onclick="setBudgetPreset(70)">Lean</button>
+              <button class="ghost-btn" onclick="setBudgetPreset(100)">Balanced</button>
+              <button class="ghost-btn" onclick="setBudgetPreset(130)">Premium</button>
+            </div>
+          </div>
+          <div class="metric"><span class="metric-label">Budget</span><span class="metric-value" id="budgetLimitLabel">—</span></div>
+          <div class="metric"><span class="metric-label">Used</span><span class="metric-value" id="budgetUsedLabel">—</span></div>
+          <div class="metric"><span class="metric-label">Remaining</span><span class="metric-value" id="budgetRemainingLabel">—</span></div>
+        </div>
+        <div class="budget-progress"><div class="budget-fill" id="budgetFill"></div></div>
+      </div>
+      <button class="primary-btn" id="startBtn">Play scenarios</button>
+      <button class="secondary-btn" id="resetBtn">Reset</button>
+    </div>
+
+    <section id="teamSection" class="section active">
+      <div class="section-heading"><div><h2>Choose your field team</h2><p class="helper">Select roles within budget. The team you build determines which capabilities are available later. Some roles unlock extra value when paired together.</p></div></div>
+      <div class="cards-grid" id="teamGrid"></div>
+    </section>
+
+    <section id="scenarioSection" class="section">
+      <div class="section-heading"><div><h2>Choose your first move</h2><p class="helper">Read the field situation, choose the first move you would make, then see whether your team has the capability to make it work.</p></div></div>
+      <div class="scenario-shell">
+        <div class="card">
+          <div class="scenario-number" id="scenarioNumber">Scenario 1 of 6</div>
+          <div class="scenario-brief"><div class="scenario-kicker">Field situation</div><p id="scenarioText" class="scenario-text-large">Scenario text</p></div>
+          <h3 class="question-heading">What would you do first?</h3>
+          <div class="option-grid" id="optionGrid"></div>
+          <div class="score-reveal" id="scoreReveal">
+            <p class="score-big" id="scenarioScore">0 pts</p>
+            <div class="score-breakdown">
+              <div class="score-tile"><span>Judgement</span><strong id="judgementScore">0/40</strong></div>
+              <div class="score-tile"><span>Team coverage</span><strong id="coverageScore">0/45</strong></div>
+              <div class="score-tile"><span>Compliance</span><strong id="complianceScore">0/15</strong></div>
+            </div>
+            <p id="scenarioFeedback"></p><div id="consequenceBox"></div>
+          </div>
+          <div class="no-print" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;"><button class="primary-btn" id="revealBtn">Reveal outcome</button><button class="secondary-btn" id="nextScenarioBtn" disabled>Next scenario</button></div>
+        </div>
+        <aside class="card">
+          <h3>Your selected team</h3><div id="selectedTeamChips"></div>
+          <h3 style="margin-top:20px;">Capabilities in your team</h3><div id="teamCapabilityChips"></div>
+          <h3 style="margin-top:20px;">Unlocked capability</h3><div id="unlockPanel"></div>
+          <h3 style="margin-top:20px;">Scenario scorecard</h3><ul class="mini-list" id="scenarioScoreList"></ul>
+        </aside>
+      </div>
+    </section>
+
+    <section id="resultsSection" class="section">
+      <div class="result-hero">
+        <div class="brand-pill" style="background:rgba(255,255,255,.12);color:white;"><span class="brand-dot"></span>Dream Team Readiness Report</div>
+        <h2>Your final result</h2><div class="final-score" id="finalScore">0%</div><p id="finalRecommendation" style="font-size:1.08rem;max-width:780px;"></p>
+        <div class="no-print" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;"><button class="primary-btn" onclick="window.print()">Print summary</button><button class="secondary-btn" id="tryAgainBtn">Try another team</button></div>
+      </div>
+      <div class="result-grid">
+        <div class="card"><h3>Team selected</h3><div id="resultTeamList"></div></div>
+        <div class="card"><h3>Budget summary</h3><p id="resultBudgetSummary"></p></div>
+        <div class="card"><h3>Scenario performance</h3><div id="resultScenarioBreakdown"></div></div>
+        <div class="card"><h3>Patterns</h3><p><strong>Strengths:</strong></p><ul id="strengthsList"></ul><p><strong>Watch-outs:</strong></p><ul id="gapsList"></ul></div>
+        <div class="card" style="grid-column:1 / -1;"><h3>Reflection prompt</h3><p id="reflectionPrompt"></p></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">Message</div>
+
+  <script>
+    let budgetLimit = 100;
+
+    const teamMembers = [
+      {id:"junior-rep", name:"Junior Sales Representative", initials:"JR", cost:10, type:"commercial", description:"Low-cost field capacity. Useful for reach and follow-through, but needs coaching to perform well in complex situations.", skills:["sales","customer","territory","activity"], conditionalSkills:{requires:"field-coach", unlocks:["execution","relationship","prioritisation"]}, tags:["Low cost","Reach","Needs coaching"]},
+      {id:"senior-rep", name:"Senior Sales Representative", initials:"SR", cost:20, type:"commercial", description:"Experienced field operator with strong customer relationships, execution discipline and territory judgement.", skills:["sales","customer","execution","relationship","territory"], tags:["Sales","Customer","Execution"]},
+      {id:"kam", name:"Key Account Manager", initials:"KA", cost:24, type:"commercial", description:"Owns priority accounts, access plans and local commercial execution.", skills:["account","access","commercial","coordination","relationship"], tags:["Accounts","Access","Execution"]},
+      {id:"msl", name:"Medical Science Liaison", initials:"MS", cost:26, type:"medical", description:"Supports scientific exchange, medical credibility and external expert engagement.", skills:["medical","kol","evidence","compliance"], tags:["KOLs","Evidence","Medical"]},
+      {id:"market-access", name:"Market Access Lead", initials:"MA", cost:22, type:"access", description:"Handles pathway, formulary, payer and local health system barriers.", skills:["access","payer","pathway","strategy"], tags:["Payer","Pathway","Strategy"]},
+      {id:"field-coach", name:"Field Coach", initials:"FC", cost:16, type:"commercial", description:"Improves call quality, coaching rhythm, territory planning and rep confidence. Unlocks extra value from Junior Reps.", skills:["coaching","performance","execution","behaviour"], tags:["Coaching","Performance","Unlocks JR"]},
+      {id:"data-analyst", name:"Data & Insights Analyst", initials:"DI", cost:18, type:"operations", description:"Spots territory patterns, prioritises opportunities and turns data into action.", skills:["data","insight","prioritisation","performance"], tags:["Data","Insight","Prioritisation"]},
+      {id:"marketer", name:"Marketer", initials:"MK", cost:19, type:"commercial", description:"Shapes campaigns, positioning, customer materials and message consistency.", skills:["marketing","brand","messaging","campaign","launch"], tags:["Marketing","Campaigns","Messaging"]},
+      {id:"nurse-educator", name:"Nurse Educator", initials:"NE", cost:18, type:"education", description:"Supports patient pathway education and practical implementation confidence.", skills:["education","pathway","implementation","customer"], tags:["Education","Pathway","Implementation"]},
+      {id:"omnichannel", name:"Omnichannel Specialist", initials:"OC", cost:15, type:"operations", description:"Designs digital follow-up, channel mix and customer engagement journeys.", skills:["digital","engagement","messaging","customer"], tags:["Digital","Engagement","Journeys"]},
+      {id:"compliance", name:"Compliance Partner", initials:"CP", cost:14, type:"compliance", description:"Helps the team make smart, compliant choices in sensitive situations.", skills:["compliance","risk","governance","medical"], tags:["Risk","Governance","Compliance"]}
+    ];
+
+    const scenarios = [
+      {title:"Scenario 1", text:"A high-potential hospital account has strong clinical interest, but uptake is not moving. The team is frustrated: clinicians seem positive, yet nothing changes in practice.", options:[
+        {id:"map-block", label:"Pause the push and map why the account is blocked", description:"Work out who controls the decision, where the pathway is stuck and what needs to change before field activity can convert.", requiredSkills:["access","payer","account","pathway","relationship"], isBest:true, risk:"none"},
+        {id:"increase-clinician-energy", label:"Increase energy with supportive clinicians", description:"Focus on clinicians who are already positive, build momentum and use their enthusiasm to pull the account forward.", requiredSkills:["commercial","messaging","activity"], isBest:false, risk:"pressureAccess"},
+        {id:"use-scientific-weight", label:"Bring in scientific credibility to shift confidence", description:"Use the medical voice to help clinicians feel more confident about why the product should be adopted.", requiredSkills:["medical","evidence"], isBest:false, risk:"medicalPromotion"}
+      ]},
+      {title:"Scenario 2", text:"The team is busy preparing for a new indication. Everyone is working hard, but customer targeting, field confidence and the story being used in conversations are inconsistent.", options:[
+        {id:"tighten-launch-rhythm", label:"Tighten the launch rhythm before adding more activity", description:"Align the approved story, sharpen customer priorities and coach the team on what good execution looks like.", requiredSkills:["launch","marketing","messaging","coaching","execution"], isBest:true, risk:"none"},
+        {id:"localise-story", label:"Let teams tailor the story to local customer reactions", description:"Give the field more freedom to adapt the message so it lands better with different customer groups.", requiredSkills:["sales","engagement","messaging"], isBest:false, risk:"unsupportedClaims"},
+        {id:"borrow-medical-trust", label:"Use trusted scientific voices to build launch confidence", description:"Ask medical colleagues to reinforce the most compelling product messages in key launch accounts.", requiredSkills:["medical","evidence"], isBest:false, risk:"medicalPromotion"}
+      ]},
+      {title:"Scenario 3", text:"During a regional meeting, a respected external expert challenges the strength of the evidence. The room goes quiet and several customers are watching how the team responds.", options:[
+        {id:"handle-as-scientific-exchange", label:"Treat it as a scientific exchange, not a sales objection", description:"Let the right expert role respond within the evidence base and capture any follow-up questions appropriately.", requiredSkills:["medical","kol","evidence","compliance"], isBest:true, risk:"none"},
+        {id:"defend-position", label:"Defend the position quickly so confidence does not drop", description:"Have the commercial team respond confidently and protect the product narrative in the moment.", requiredSkills:["sales","messaging","relationship"], isBest:false, risk:"commercialScientificExchange"},
+        {id:"reassure-future", label:"Reassure the room with what is coming next", description:"Point to future data, expected developments and the direction of travel to reduce concern.", requiredSkills:["kol","messaging"], isBest:false, risk:"unsupportedClaims"}
+      ]},
+      {title:"Scenario 4", text:"One territory is underperforming. The rep is active and customer-facing time is high, but conversion is weak and follow-through is inconsistent.", options:[
+        {id:"diagnose-before-driving", label:"Diagnose the pattern before asking for more effort", description:"Use the available data to find the real issue, reset priorities and coach the behaviours that need to change.", requiredSkills:["data","insight","performance","coaching","territory","prioritisation"], isBest:true, risk:"none"},
+        {id:"lift-activity", label:"Lift the visible activity level immediately", description:"Increase call volume and customer touchpoints to create more chances for the territory to turn around.", requiredSkills:["activity","sales","territory"], isBest:false, risk:"poorGovernance"},
+        {id:"add-medical-presence", label:"Add more expert presence to important calls", description:"Use medical attendance in more customer interactions to increase confidence and improve outcomes.", requiredSkills:["medical","customer"], isBest:false, risk:"medicalAsSalesCapacity"}
+      ]},
+      {title:"Scenario 5", text:"Medical, marketing, access and sales are all involved in the same priority customers. Each function is trying to help, but customers are hearing slightly different things.", options:[
+        {id:"reset-one-plan", label:"Reset the plan and clarify who does what", description:"Create one account approach with clear role boundaries, approved messages and independence where it matters.", requiredSkills:["coordination","strategy","marketing","medical","access","compliance"], isBest:true, risk:"none"},
+        {id:"one-message-everyone", label:"Get everyone behind one simple customer message", description:"Ask all functions to reinforce the same product story so the customer experience feels consistent.", requiredSkills:["messaging","coordination","campaign"], isBest:false, risk:"roleBlurring"},
+        {id:"commercial-prioritises-topics", label:"Have commercial steer the key topics by account", description:"Let commercial decide which topics each function should emphasise based on account opportunity.", requiredSkills:["commercial","medical"], isBest:false, risk:"medicalIndependence"}
+      ]},
+      {title:"Scenario 6", text:"Access to customers is limited, but there is permission to follow up digitally. The opportunity is real, but customers are already overloaded with information.", options:[
+        {id:"design-useful-journey", label:"Design fewer, better follow-ups", description:"Build an approved customer journey with consent, useful content, clear timing and a reason for each touchpoint.", requiredSkills:["digital","engagement","customer","messaging","campaign","compliance"], isBest:true, risk:"none"},
+        {id:"stay-present", label:"Stay visible until customers respond", description:"Use regular reminders and promotional content to maintain presence despite limited access.", requiredSkills:["digital","messaging","activity"], isBest:false, risk:"poorEngagementGovernance"},
+        {id:"send-helpful-extra", label:"Send the most useful material, even if it is not in the core pack", description:"Share a helpful slide or resource if it answers the customer’s question better than the approved materials.", requiredSkills:["customer","messaging"], isBest:false, risk:"unsupportedClaims"}
+      ]}
+    ];
+
+    const riskConsequences = {
+      none:"No compliance issue detected. The move is role-appropriate.",
+      medicalPromotion:"Compliance consequence: medical is being used to promote. Score penalty applied.",
+      pressureAccess:"Governance consequence: commercial pressure without a proper access strategy may damage stakeholder trust.",
+      unsupportedClaims:"Compliance consequence: unsupported or forward-looking claims create serious risk. Score penalty applied.",
+      commercialScientificExchange:"Compliance consequence: commercial is being asked to lead scientific exchange. Escalate to medical.",
+      medicalAsSalesCapacity:"Compliance consequence: medical is being used as extra sales capacity. Role boundaries need to be reset.",
+      roleBlurring:"Compliance consequence: role boundaries are blurred. Customers may receive inappropriate engagement.",
+      medicalIndependence:"Compliance consequence: commercial is directing medical activity. Medical independence must be protected.",
+      poorGovernance:"Leadership consequence: activity without diagnosis may make the performance problem worse.",
+      poorEngagementGovernance:"Customer consequence: excessive digital follow-up may feel like spam and reduce trust."
+    };
+
+    const scoreBands = [
+      {min:85, title:"High-readiness field leader", message:"You balanced team design, field judgement and compliance-safe decision-making very well."},
+      {min:65, title:"Strong but watch the edges", message:"You made mostly good choices, with a few capability or compliance watch-outs to tighten."},
+      {min:45, title:"Mixed readiness", message:"You have some good instincts, but several situations exposed gaps in team coverage or judgement."},
+      {min:0, title:"High-risk approach", message:"This result suggests the team design or scenario judgement needs significant rebalancing before field execution."}
+    ];
+
+    let selectedIds = [];
+    let currentScenarioIndex = 0;
+    let scenarioResults = [];
+    let selectedOptionId = null;
+    let hasRevealed = false;
+
+    const teamGrid = document.getElementById("teamGrid");
+    const budgetInput = document.getElementById("budgetInput");
+    const budgetLimitLabel = document.getElementById("budgetLimitLabel");
+    const budgetUsedLabel = document.getElementById("budgetUsedLabel");
+    const budgetRemainingLabel = document.getElementById("budgetRemainingLabel");
+    const budgetFill = document.getElementById("budgetFill");
+    const startBtn = document.getElementById("startBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const teamSection = document.getElementById("teamSection");
+    const scenarioSection = document.getElementById("scenarioSection");
+    const resultsSection = document.getElementById("resultsSection");
+    const scenarioNumber = document.getElementById("scenarioNumber");
+    const scenarioText = document.getElementById("scenarioText");
+    const optionGrid = document.getElementById("optionGrid");
+    const scoreReveal = document.getElementById("scoreReveal");
+    const scenarioScore = document.getElementById("scenarioScore");
+    const judgementScore = document.getElementById("judgementScore");
+    const coverageScore = document.getElementById("coverageScore");
+    const complianceScore = document.getElementById("complianceScore");
+    const scenarioFeedback = document.getElementById("scenarioFeedback");
+    const consequenceBox = document.getElementById("consequenceBox");
+    const revealBtn = document.getElementById("revealBtn");
+    const nextScenarioBtn = document.getElementById("nextScenarioBtn");
+    const selectedTeamChips = document.getElementById("selectedTeamChips");
+    const teamCapabilityChips = document.getElementById("teamCapabilityChips");
+    const unlockPanel = document.getElementById("unlockPanel");
+    const scenarioScoreList = document.getElementById("scenarioScoreList");
+    const tryAgainBtn = document.getElementById("tryAgainBtn");
+    const toast = document.getElementById("toast");
+
+    function getSelectedMembers() { return teamMembers.filter(member => selectedIds.includes(member.id)); }
+    function getBudgetUsed() { return getSelectedMembers().reduce((sum, member) => sum + member.cost, 0); }
+    function getSelectedSkills() {
+      const skills = new Set();
+      const selectedMemberIds = new Set(selectedIds);
+      getSelectedMembers().forEach(member => {
+        member.skills.forEach(skill => skills.add(skill));
+        if (member.conditionalSkills && selectedMemberIds.has(member.conditionalSkills.requires)) {
+          member.conditionalSkills.unlocks.forEach(skill => skills.add(skill));
+        }
+      });
+      return skills;
+    }
+    function getUnlockedSkillDetails() {
+      const selectedMemberIds = new Set(selectedIds);
+      const unlocked = [];
+      getSelectedMembers().forEach(member => {
+        if (member.conditionalSkills && selectedMemberIds.has(member.conditionalSkills.requires)) {
+          unlocked.push({memberName: member.name, requiredName: getMemberName(member.conditionalSkills.requires), skills: member.conditionalSkills.unlocks});
+        }
+      });
+      return unlocked;
+    }
+    function showToast(message) { toast.textContent = message; toast.classList.add("visible"); setTimeout(() => toast.classList.remove("visible"), 1900); }
+
+    function renderTeamCards() {
+      teamGrid.innerHTML = "";
+      const used = getBudgetUsed();
+      const selectedMemberIds = new Set(selectedIds);
+      teamMembers.forEach(member => {
+        const isSelected = selectedIds.includes(member.id);
+        const wouldExceed = !isSelected && used + member.cost > budgetLimit;
+        const isConditional = !!member.conditionalSkills;
+        const isUnlocked = isConditional && selectedMemberIds.has(member.conditionalSkills.requires);
+        const card = document.createElement("article");
+        card.className = "card member-card" + (isSelected ? " selected" : "") + (wouldExceed ? " unavailable" : "");
+        card.onclick = () => toggleMember(member.id);
+        const conditionalNote = isConditional ? (isUnlocked ? `<div class="unlocked-note">Unlocked by ${getMemberName(member.conditionalSkills.requires)}: ${member.conditionalSkills.unlocks.map(formatSkill).join(", ")}.</div>` : `<div class="unlock-note">Unlocks more value if paired with ${getMemberName(member.conditionalSkills.requires)}.</div>`) : "";
+        card.innerHTML = `
+          <div class="member-top"><div style="display:flex;gap:12px;align-items:center;"><div class="avatar">${member.initials}</div><h3 class="member-title">${member.name}</h3></div><div class="cost">${member.cost} pts</div></div>
+          <p class="description">${member.description}</p>${conditionalNote}
+          <div class="tags"><span class="tag">${formatSkill(member.type)}</span>${member.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}${isUnlocked ? `<span class="tag unlock">Unlocked</span>` : ""}</div>
+          <div class="check">✓</div>`;
+        teamGrid.appendChild(card);
+      });
+    }
+
+    function toggleMember(id) {
+      const member = teamMembers.find(item => item.id === id);
+      const alreadySelected = selectedIds.includes(id);
+      if (alreadySelected) selectedIds = selectedIds.filter(selectedId => selectedId !== id);
+      else {
+        if (getBudgetUsed() + member.cost > budgetLimit) { showToast("That role would exceed your budget."); return; }
+        selectedIds.push(id);
+      }
+      updateBudgetUI(); renderTeamCards();
+    }
+
+    function updateBudgetUI() {
+      const used = getBudgetUsed();
+      const remaining = budgetLimit - used;
+      const percent = Math.min(100, Math.round((used / budgetLimit) * 100));
+      budgetInput.value = budgetLimit;
+      budgetLimitLabel.textContent = `${budgetLimit} pts`;
+      budgetUsedLabel.textContent = `${used} pts`;
+      budgetRemainingLabel.textContent = `${remaining} pts`;
+      budgetFill.style.width = `${percent}%`;
+      startBtn.disabled = selectedIds.length === 0;
+    }
+
+    function applyBudgetChange(newBudget) {
+      if (!newBudget || newBudget < 30) { budgetInput.value = budgetLimit; showToast("Please choose a budget of at least 30 points."); return; }
+      if (newBudget > 160) { newBudget = 160; showToast("Maximum budget is 160 points."); }
+      budgetLimit = newBudget;
+      if (getBudgetUsed() > budgetLimit) { selectedIds = []; showToast("Budget changed. Team selection has been cleared."); }
+      updateBudgetUI(); renderTeamCards(); showSection(teamSection);
+    }
+    function setBudgetPreset(value) { applyBudgetChange(value); }
+    function showSection(section) { teamSection.classList.remove("active"); scenarioSection.classList.remove("active"); resultsSection.classList.remove("active"); section.classList.add("active"); window.scrollTo({ top:0, behavior:"smooth" }); }
+
+    function startScenarios() {
+      if (selectedIds.length === 0) { showToast("Choose at least one team member first."); return; }
+      currentScenarioIndex = 0; scenarioResults = []; selectedOptionId = null; hasRevealed = false;
+      renderSelectedTeamPanel(); renderScenarioScoreList(); loadScenario(); showSection(scenarioSection);
+    }
+
+    function renderSelectedTeamPanel() {
+      selectedTeamChips.innerHTML = getSelectedMembers().map(member => `<span class="selected-team-chip">${member.name}</span>`).join("");
+      const skills = Array.from(getSelectedSkills()).sort();
+      teamCapabilityChips.innerHTML = skills.length ? skills.map(skill => `<span class="selected-team-chip">${formatSkill(skill)}</span>`).join("") : "<p class='helper'>No capabilities selected yet.</p>";
+      const unlocked = getUnlockedSkillDetails();
+      unlockPanel.innerHTML = unlocked.length ? unlocked.map(item => `<p class="helper" style="margin:0 0 8px;"><strong>${item.memberName}</strong> gained ${item.skills.map(formatSkill).join(", ")} because ${item.requiredName} is also in the team.</p>`).join("") : "<p class='helper'>No conditional capabilities unlocked yet. Try pairing Junior Rep with Field Coach.</p>";
+    }
+
+    function loadScenario() {
+      const scenario = scenarios[currentScenarioIndex];
+      selectedOptionId = null; hasRevealed = false;
+      scenarioNumber.textContent = `Scenario ${currentScenarioIndex + 1} of ${scenarios.length}`;
+      scenarioText.textContent = scenario.text;
+      scoreReveal.classList.remove("visible");
+      scenarioScore.textContent = "0 pts"; judgementScore.textContent = "0/40"; coverageScore.textContent = "0/45"; complianceScore.textContent = "0/15"; scenarioFeedback.textContent = ""; consequenceBox.innerHTML = "";
+      renderCapabilityOptions();
+      revealBtn.disabled = false; nextScenarioBtn.disabled = true; nextScenarioBtn.textContent = currentScenarioIndex === scenarios.length - 1 ? "See results" : "Next scenario";
+    }
+
+    function renderCapabilityOptions() {
+      const scenario = scenarios[currentScenarioIndex];
+      optionGrid.innerHTML = scenario.options.map(option => `<button class="capability-option" onclick="selectCapabilityOption('${option.id}')" id="option-${option.id}"><span class="option-title">${option.label}</span><span class="option-desc">${option.description}</span></button>`).join("");
+    }
+    function selectCapabilityOption(optionId) {
+      selectedOptionId = optionId;
+      document.querySelectorAll(".capability-option").forEach(button => button.classList.remove("selected"));
+      const selectedButton = document.getElementById(`option-${optionId}`);
+      if (selectedButton) selectedButton.classList.add("selected");
+    }
+
+    function calculateScenarioOutcome() {
+      const scenario = scenarios[currentScenarioIndex];
+      const option = scenario.options.find(item => item.id === selectedOptionId);
+      const selectedSkills = getSelectedSkills();
+      const matchedSkills = option.requiredSkills.filter(skill => selectedSkills.has(skill));
+      const missingSkills = option.requiredSkills.filter(skill => !selectedSkills.has(skill));
+      const coverageRatio = matchedSkills.length / option.requiredSkills.length;
+      const judgement = option.isBest ? 40 : 12;
+      const coverage = Math.round(coverageRatio * 45);
+      let compliance = option.risk === "none" ? 15 : 0;
+      let riskPenalty = option.risk === "none" ? 0 : 15;
+      const teamHasComplianceSupport = selectedSkills.has("compliance") || selectedSkills.has("governance") || selectedSkills.has("risk");
+      if (option.risk !== "none" && teamHasComplianceSupport) { compliance = 5; riskPenalty = 10; }
+      let total = judgement + coverage + compliance - riskPenalty;
+      total = Math.max(0, Math.min(100, total));
+      let feedback = "";
+      if (option.isBest && coverageRatio >= .75 && option.risk === "none") feedback = "Strong choice. You chose a good first move and your team has enough coverage to act on it.";
+      else if (option.isBest && coverageRatio < .75 && option.risk === "none") feedback = "Good judgement, but your selected team does not fully cover what this move needs. You knew what to do, but the team design leaves you exposed.";
+      else if (!option.isBest && option.risk === "none") feedback = "Safe but not optimal. This move may help, but it does not directly address the core challenge.";
+      else feedback = "Risky choice. This move creates a compliance, governance or role-boundary issue.";
+      return {title:`Scenario ${currentScenarioIndex + 1}`, optionLabel:option.label, requiredSkills:option.requiredSkills, matchedSkills, missingSkills, judgement, coverage, compliance, riskPenalty, score:total, isBest:option.isBest, risk:option.risk, feedback, consequence:riskConsequences[option.risk]};
+    }
+
+    function revealScenarioScore() {
+      if (!selectedOptionId) { showToast("Choose your first move."); return; }
+      const result = calculateScenarioOutcome();
+      scenarioResults[currentScenarioIndex] = result;
+      scenarioScore.textContent = `${result.score}/100 pts`;
+      judgementScore.textContent = `${result.judgement}/40`;
+      coverageScore.textContent = `${result.coverage}/45`;
+      complianceScore.textContent = `${result.compliance}/15`;
+      scenarioFeedback.innerHTML = `<strong>${result.feedback}</strong><br>Move chosen: ${result.optionLabel}<br>Team matched: ${result.matchedSkills.length ? result.matchedSkills.map(formatSkill).join(", ") : "none"}.${result.missingSkills.length ? `<br>Missing: ${result.missingSkills.map(formatSkill).join(", ")}.` : ""}`;
+      const boxClass = result.risk === "none" ? "consequence good" : result.isBest ? "consequence warning" : "consequence";
+      consequenceBox.innerHTML = `<div class="${boxClass}">${result.consequence}</div>`;
+      scoreReveal.classList.add("visible"); revealBtn.disabled = true; nextScenarioBtn.disabled = false; hasRevealed = true; renderScenarioScoreList();
+    }
+
+    function nextScenario() {
+      if (!hasRevealed) return;
+      if (currentScenarioIndex < scenarios.length - 1) { currentScenarioIndex++; loadScenario(); }
+      else { renderResults(); showSection(resultsSection); }
+    }
+    function renderScenarioScoreList() {
+      scenarioScoreList.innerHTML = scenarios.map((scenario, index) => {
+        const result = scenarioResults[index];
+        const label = result ? `${result.score}/100` : "Not played";
+        const riskLabel = result && result.risk !== "none" ? " · watch-out" : "";
+        return `<li><strong>Scenario ${index + 1}</strong><br>${label}${riskLabel}</li>`;
+      }).join("");
+    }
+    function getFinalScorePercent() { if (!scenarioResults.length) return 0; const total = scenarioResults.reduce((sum, result) => sum + result.score, 0); return Math.round(total / scenarios.length); }
+    function getScoreBand(percent) { return scoreBands.find(band => percent >= band.min); }
+
+    function renderResults() {
+      const percent = getFinalScorePercent();
+      const band = getScoreBand(percent);
+      const used = getBudgetUsed();
+      const remaining = budgetLimit - used;
+      const bestChoices = scenarioResults.filter(result => result.isBest).length;
+      const riskyChoices = scenarioResults.filter(result => result.risk !== "none").length;
+      const coverageGaps = scenarioResults.filter(result => result.missingSkills.length > 0);
+      const cleanChoices = scenarioResults.filter(result => result.risk === "none").length;
+      const unlocked = getUnlockedSkillDetails();
+      document.getElementById("finalScore").textContent = `${percent}%`;
+      document.getElementById("finalRecommendation").innerHTML = `<strong>${band.title}.</strong> ${band.message}`;
+      document.getElementById("resultTeamList").innerHTML = getSelectedMembers().map(member => `<span class="selected-team-chip">${member.name} · ${member.cost} pts</span>`).join("");
+      document.getElementById("resultBudgetSummary").textContent = `You used ${used} of ${budgetLimit} budget points, leaving ${remaining} points unused.`;
+      document.getElementById("resultScenarioBreakdown").innerHTML = scenarioResults.map(result => `<div class="scenario-result"><div><strong>${result.title}</strong><p style="margin:4px 0 0;">${result.feedback}</p><p style="margin:4px 0 0;"><em>${result.consequence}</em></p></div><span class="score-pill">${result.score}/100</span></div>`).join("");
+      document.getElementById("strengthsList").innerHTML = `<li>Best first move selected in ${bestChoices} of ${scenarios.length} scenarios.</li><li>Compliance-safe choice made in ${cleanChoices} of ${scenarios.length} scenarios.</li><li>${unlocked.length ? "You unlocked extra capability through smart role pairing." : "No conditional role pairing was unlocked."}</li><li>Budget discipline: within budget with ${remaining} points remaining.</li>`;
+      document.getElementById("gapsList").innerHTML = coverageGaps.length || riskyChoices ? `${coverageGaps.slice(0,4).map(result => `<li>${result.title}: missing ${result.missingSkills.map(formatSkill).join(", ")}.</li>`).join("")}${riskyChoices ? `<li>${riskyChoices} scenario(s) created a compliance or governance watch-out.</li>` : ""}` : "<li>No major team coverage or compliance watch-outs detected.</li>";
+      document.getElementById("reflectionPrompt").textContent = unlocked.length ? "Where did role pairing help you get more value from a lower-cost choice, and where did you still need specialist capability?" : "Would pairing a lower-cost role with an enabling role, such as Junior Rep plus Field Coach, have changed your budget trade-off?";
+    }
+
+    function resetApp() { selectedIds = []; currentScenarioIndex = 0; scenarioResults = []; selectedOptionId = null; hasRevealed = false; updateBudgetUI(); renderTeamCards(); showSection(teamSection); }
+    function getMemberName(id) { const member = teamMembers.find(item => item.id === id); return member ? member.name : id; }
+    function formatSkill(text) { return text.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" "); }
+
+    startBtn.addEventListener("click", startScenarios);
+    resetBtn.addEventListener("click", resetApp);
+    revealBtn.addEventListener("click", revealScenarioScore);
+    nextScenarioBtn.addEventListener("click", nextScenario);
+    tryAgainBtn.addEventListener("click", resetApp);
+    budgetInput.addEventListener("change", () => { applyBudgetChange(Number(budgetInput.value)); });
+    updateBudgetUI();
+    renderTeamCards();
+  </script>
+</body>
+</html>
